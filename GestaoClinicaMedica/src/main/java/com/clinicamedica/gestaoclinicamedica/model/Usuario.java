@@ -1,13 +1,15 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.clinicamedica.gestaoclinicamedica.model;
 
-/**
- *
- * @author CAROLLYNECORREIADOSS
- */
 public class Usuario {
+    private int id;
+    private String login;
+    private String senha;
+    private String perfil;
+    private boolean autorizado;
+    
+    public Usuario(){
+    }
+    
     
 }
