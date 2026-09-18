@@ -1,5 +1,6 @@
 package com.clinicamedica.gestaoclinicamedica.model;
-class Medico {
+
+public class Medico {
     private int id;
     private String nome;
     private String crm;

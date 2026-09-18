@@ -1,4 +1,3 @@
-
 package com.clinicamedica.gestaoclinicamedica.model;
 
 public class Usuario {

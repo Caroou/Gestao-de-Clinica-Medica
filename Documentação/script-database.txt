@@ -1,0 +1,77 @@
+CREATE DATABASE IF NOT EXISTS clinica_medica;
+USE clinica_medica;
+
+-- 1. Tabela de Usuários (Autenticação)
+CREATE TABLE usuario (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    login VARCHAR(100) UNIQUE NOT NULL,
+    senha VARCHAR(255) NOT NULL, -- Tamanho expandido para o Hash BCrypt
+    perfil VARCHAR(50) NOT NULL,
+    autorizado BOOLEAN DEFAULT TRUE
+);
+
+-- 2. Tabela de Pacientes (Dados Sensíveis)
+CREATE TABLE paciente (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    cpf VARCHAR(255) UNIQUE NOT NULL, -- Tamanho expandido para Criptografia AES
+    data_nascimento DATE NOT NULL,
+    telefone VARCHAR(255),            -- Tamanho expandido para Criptografia AES
+    email VARCHAR(255)
+);
+
+-- 3. Tabela de Especialidades
+CREATE TABLE especialidade (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL
+);
+
+-- 4. Tabela de Médicos
+CREATE TABLE medico (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    crm VARCHAR(50) UNIQUE NOT NULL,
+    telefone VARCHAR(255)             -- Tamanho expandido para Criptografia AES
+);
+
+-- 5. Tabela Intermediária: Médico <-> Especialidade (Permite mais de uma por médico)
+CREATE TABLE medico_especialidade (
+    medico_id INT NOT NULL,
+    especialidade_id INT NOT NULL,
+    PRIMARY KEY (medico_id, especialidade_id),
+    FOREIGN KEY (medico_id) REFERENCES medico(id) ON DELETE CASCADE,
+    FOREIGN KEY (especialidade_id) REFERENCES especialidade(id) ON DELETE CASCADE
+);
+
+-- 6. Tabela de Agenda
+CREATE TABLE agenda (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    medico_id INT NOT NULL,
+    data_agenda DATE NOT NULL,
+    FOREIGN KEY (medico_id) REFERENCES medico(id)
+);
+
+-- 7. Tabela de Consultas
+CREATE TABLE consulta (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    agenda_id INT NOT NULL,
+    paciente_id INT NOT NULL,
+    medico_id INT NOT NULL,
+    data_hora DATETIME NOT NULL,
+    status ENUM('Agendado', 'Cancelado', 'Realizado', 'Não compareceu') DEFAULT 'Agendado',
+    observacoes TEXT,
+    FOREIGN KEY (agenda_id) REFERENCES agenda(id),
+    FOREIGN KEY (paciente_id) REFERENCES paciente(id),
+    FOREIGN KEY (medico_id) REFERENCES medico(id)
+);
+
+-- 8. Tabela de Atendimentos Clínicos (Dados Clínicos Sensíveis)
+CREATE TABLE atendimento (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    consulta_id INT UNIQUE NOT NULL, -- Relacionamento 1 para 1 com a Consulta
+    data_hora DATETIME NOT NULL,
+    diagnostico TEXT,                -- TEXT suporta strings longas do AES em Base64
+    prescricao TEXT,                 -- TEXT para Criptografia AES
+    observacoes TEXT,                -- TEXT para Criptografia AES
+    FOREIGN KEY (consulta_id) REFERENCES consulta(id)
+);
