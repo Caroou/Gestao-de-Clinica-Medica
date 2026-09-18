@@ -1,4 +1,4 @@
-package com.clinicamedica.gestaoclinicamedica.model;
+package com.clinicamedica.model;
 import java.time.LocalDateTime;
 
 public class Consulta {

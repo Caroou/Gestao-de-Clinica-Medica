@@ -1,4 +1,4 @@
-package com.clinicamedica.gestaoclinicamedica.model;
+package com.clinicamedica.model;
 
 public class Usuario {
     private int id;

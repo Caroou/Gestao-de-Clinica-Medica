@@ -1,1 +1,0 @@
-package com.clinicamedica.gestaoclinicamedica.model;
