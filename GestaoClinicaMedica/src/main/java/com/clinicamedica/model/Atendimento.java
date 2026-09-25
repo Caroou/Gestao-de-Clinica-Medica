@@ -1,3 +1,5 @@
+package com.clinicamedica.model;
+
 import java.time.LocalDateTime;
 
 public class Atendimento {
@@ -6,13 +8,15 @@ public class Atendimento {
     private String diagnostico;
     private String prescricao;
     private String observacoes;
+    private Consulta consulta;
 
-    public Atendimento(int id, LocalDateTime dataHora, String diagnostico, String prescricao, String observacoes) {
+    public Atendimento(int id, LocalDateTime dataHora, String diagnostico, String prescricao, String observacoes, Consulta consulta) {
         this.id = id;
         this.dataHora = dataHora;
         this.diagnostico = diagnostico;
         this.prescricao = prescricao;
         this.observacoes = observacoes;
+        this.consulta = consulta;
     }
 
     public Atendimento() {
@@ -61,5 +65,13 @@ public class Atendimento {
 
     public void setObservacoes(String observacoes) {
         this.observacoes = observacoes;
+    }
+
+    public Consulta getConsulta() {
+        return consulta;
+    }
+
+    public void setConsulta(Consulta consulta) {
+        this.consulta = consulta;
     }
 }
