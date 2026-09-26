@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Clínica - Cadastro</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+
+    <!-- PASSO 1: CRIAR O ACESSO -->
+    <div id="passo-1-usuario">
+        <h2>1. Criar Acesso</h2>
+        <input type="text" id="cad_login" placeholder="Login" required>
+        <input type="password" id="cad_senha" placeholder="Senha" required>
+        <select id="cad_perfil">
+            <option value="PACIENTE">Sou Paciente</option>
+            <option value="MEDICO">Sou Médico</option>
+        </select>
+
+        <button class="btn-cadastrar" onclick="cadastrarUsuario()">Continuar ➔</button>
+        <button class="btn-secundario" onclick="window.location.href='index.html'">Voltar pro Login</button>
+        <div id="msg_cadastro" class="mensagem"></div>
+    </div>
+
+    <!-- PASSO 2: DADOS DO PACIENTE (Fica invisível até o passo 1 terminar) -->
+    <div id="passo-2-paciente" class="escondido">
+        <h2>2. Dados do Paciente</h2>
+        <input type="text" id="pac_nome" placeholder="Nome Completo" required>
+        <input type="text" id="pac_cpf" placeholder="CPF" required>
+        <input type="date" id="pac_data" required title="Data de Nascimento">
+        <input type="text" id="pac_telefone" placeholder="Telefone" required>
+        <input type="email" id="pac_email" placeholder="E-mail" required>
+
+        <button class="btn-cadastrar" onclick="cadastrarPaciente()">Finalizar Cadastro</button>
+        <div id="msg_paciente" class="mensagem"></div>
+    </div>
+
+    <!-- PASSO 2: DADOS DO MÉDICO (Deixei a estrutura pronta pra quando criarmos a API do Médico) -->
+    <div id="passo-2-medico" class="escondido">
+        <h2>2. Dados do Médico</h2>
+        <p style="font-size: 14px; color: #aaa;">(A API do médico será feita na próxima etapa!)</p>
+        <button class="btn-secundario" onclick="window.location.href='index.html'">Voltar pro Login</button>
+    </div>
+
+</div>
+<script src="js/main.js"></script>
+</body>
+</html>
