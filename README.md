@@ -30,7 +30,7 @@ A nossa arquitetura agora segue os padrões modernos de APIs RESTful:
 
 ## ✅ Status Atual do Projeto
 
-* CRUD de **Usuário**, **Paciente** e **Especialidade** já finalizados e funcionando.
+* CRUD de **Usuário**, **Paciente** já finalizados e funcionando.
 * Página HTML simples disponibilizada no projeto para testes práticos de cadastro.
 
 ---
