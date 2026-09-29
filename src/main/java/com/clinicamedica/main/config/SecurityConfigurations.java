@@ -32,6 +32,7 @@ public class SecurityConfigurations {
                                 "/api/usuarios/cadastrar",
                                 "/api/usuarios/login",
                                 "/api/pacientes/**",
+                                "/api/especialidades/**",
                                 "/",              // Libera a raiz (localhost:8080)
                                 "/*.html",        // Libera qualquer arquivo HTML (index.html, cadastro.html)
                                 "/css/**",        // Libera tudo dentro da pasta css
