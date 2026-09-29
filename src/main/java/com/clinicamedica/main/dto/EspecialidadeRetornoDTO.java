@@ -1,6 +1,6 @@
-package com.clinica.medica.dto;
+package com.clinicamedica.main.dto;
 
-public record EspecialidadeResponseDTO(
+public record EspecialidadeRetornoDTO(
         Integer id,
         String nome
 ) {

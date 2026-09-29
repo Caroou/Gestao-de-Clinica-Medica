@@ -1,6 +1,7 @@
-public interface EspecialidadeRepository extends JpaRepository<Especialidade, Integer> {
 
-    Optional<Especialidade> findByNome(String nome);
+package com.clinicamedica.main.dto;
 
-    boolean existsByNome(String nome);
+public record EspecialidadeCadastroDTO(
+        String nome
+) {
 }

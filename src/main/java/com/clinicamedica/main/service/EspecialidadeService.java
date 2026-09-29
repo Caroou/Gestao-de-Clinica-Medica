@@ -1,9 +1,9 @@
-package com.clinica.medica.service;
+package com.clinicamedica.main.service;
 
-import com.clinica.medica.dto.EspecialidadeRequestDTO;
-import com.clinica.medica.dto.EspecialidadeResponseDTO;
-import com.clinica.medica.model.Especialidade;
-import com.clinica.medica.repository.EspecialidadeRepository;
+import com.clinicamedica.main.dto.EspecialidadeCadastroDTO;
+import com.clinicamedica.main.dto.EspecialidadeRetornoDTO;
+import com.clinicamedica.main.model.Especialidade;
+import com.clinicamedica.main.repository.EspecialidadeRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public class EspecialidadeService {
         this.repository = repository;
     }
 
-    public EspecialidadeResponseDTO cadastrar(EspecialidadeRequestDTO dto) {
+    public EspecialidadeRetornoDTO cadastrar(EspecialidadeCadastroDTO dto) {
 
         if (dto.nome() == null || dto.nome().isBlank()) {
             throw new IllegalArgumentException("O nome da especialidade é obrigatório.");
@@ -39,7 +39,7 @@ public class EspecialidadeService {
         return converterParaResponse(salva);
     }
 
-    public List<EspecialidadeResponseDTO> listarTodos() {
+    public List<EspecialidadeRetornoDTO> listarTodos() {
 
         return repository.findAll()
                 .stream()
@@ -47,7 +47,7 @@ public class EspecialidadeService {
                 .toList();
     }
 
-    public EspecialidadeResponseDTO buscarPorId(Integer id) {
+    public EspecialidadeRetornoDTO buscarPorId(Integer id) {
 
         Especialidade especialidade = repository.findById(id)
                 .orElseThrow(() ->
@@ -57,9 +57,9 @@ public class EspecialidadeService {
         return converterParaResponse(especialidade);
     }
 
-    public EspecialidadeResponseDTO atualizar(
+    public EspecialidadeRetornoDTO atualizar(
             Integer id,
-            EspecialidadeRequestDTO dto
+            EspecialidadeRetornoDTO dto
     ) {
 
         Especialidade especialidade = repository.findById(id)
@@ -99,11 +99,11 @@ public class EspecialidadeService {
         repository.deleteById(id);
     }
 
-    private EspecialidadeResponseDTO converterParaResponse(
+    private EspecialidadeRetornoDTO converterParaResponse(
             Especialidade especialidade
     ) {
 
-        return new EspecialidadeResponseDTO(
+        return new EspecialidadeRetornoDTO(
                 especialidade.getId(),
                 especialidade.getNome()
         );

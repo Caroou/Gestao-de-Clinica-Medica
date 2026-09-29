@@ -1,8 +1,8 @@
-package com.clinica.medica.controller;
+package com.clinicamedica.main.controller;
 
-import com.clinica.medica.dto.EspecialidadeRequestDTO;
-import com.clinica.medica.dto.EspecialidadeResponseDTO;
-import com.clinica.medica.service.EspecialidadeService;
+import com.clinicamedica.main.dto.EspecialidadeRetornoDTO;
+import com.clinicamedica.main.dto.EspecialidadeCadastroDTO;
+import com.clinicamedica.main.service.EspecialidadeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,21 +19,21 @@ public class EspecialidadeController {
     }
 
     @PostMapping
-    public ResponseEntity<EspecialidadeResponseDTO> cadastrar(
-            @RequestBody EspecialidadeRequestDTO dto
+    public ResponseEntity<EspecialidadeRetornoDTO> cadastrar(
+            @RequestBody EspecialidadeCadastroDTO dto
     ) {
 
         return ResponseEntity.ok(service.cadastrar(dto));
     }
 
     @GetMapping
-    public ResponseEntity<List<EspecialidadeResponseDTO>> listarTodos() {
+    public ResponseEntity<List<EspecialidadeRetornoDTO>> listarTodos() {
 
         return ResponseEntity.ok(service.listarTodos());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EspecialidadeResponseDTO> buscarPorId(
+    public ResponseEntity<EspecialidadeRetornoDTO> buscarPorId(
             @PathVariable Integer id
     ) {
 
@@ -41,9 +41,9 @@ public class EspecialidadeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EspecialidadeResponseDTO> atualizar(
+    public ResponseEntity<EspecialidadeRetornoDTO> atualizar(
             @PathVariable Integer id,
-            @RequestBody EspecialidadeRequestDTO dto
+            @RequestBody EspecialidadeRetornoDTO dto
     ) {
 
         return ResponseEntity.ok(service.atualizar(id, dto));
