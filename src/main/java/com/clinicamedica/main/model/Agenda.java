@@ -1,14 +1,11 @@
 package com.clinicamedica.main.model;
 
 import java.time.LocalDate;
-import java.util.List;
-
+import java.time.LocalTime;
 import jakarta.persistence.*;
-
 @Entity
 @Table(name = "agenda")
 public class Agenda {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -17,27 +14,24 @@ public class Agenda {
     @JoinColumn(name = "medico_id", nullable = false)
     private Medico medico;
 
-    @Column(name = "data_disponivel", nullable = false)
-    private LocalDate dataDisponivel;
+    @Column(name = "data_agenda", nullable = false)
+    private LocalDate dataAgenda;
 
-    @OneToMany(mappedBy = "agenda")
-    private List<Consulta> consultas;
+    @Column(nullable = false)
+    private LocalTime horario; // O slot de tempo específico
 
-    public List<Consulta> getConsultas() {
-        return consultas;
-    }
-
-    public void setConsultas(List<Consulta> consultas) {
-        this.consultas = consultas;
-    }
+    private boolean disponivel;
 
     public Agenda() {
+        this.disponivel = true;
     }
 
-    public Agenda(int id, Medico medico, LocalDate dataDisponivel) {
+    public Agenda(int id, Medico medico, LocalDate dataAgenda, LocalTime horario, boolean disponivel) {
         this.id = id;
         this.medico = medico;
-        this.dataDisponivel = dataDisponivel;
+        this.dataAgenda = dataAgenda;
+        this.horario = horario;
+        this.disponivel = disponivel;
     }
 
     public int getId() {
@@ -56,11 +50,27 @@ public class Agenda {
         this.medico = medico;
     }
 
-    public LocalDate getDataDisponivel() {
-        return dataDisponivel;
+    public LocalDate getDataAgenda() {
+        return dataAgenda;
     }
 
-    public void setDataDisponivel(LocalDate dataDisponivel) {
-        this.dataDisponivel = dataDisponivel;
+    public void setDataAgenda(LocalDate dataAgenda) {
+        this.dataAgenda = dataAgenda;
+    }
+
+    public LocalTime getHorario() {
+        return horario;
+    }
+
+    public void setHorario(LocalTime horario) {
+        this.horario = horario;
+    }
+
+    public boolean isDisponivel() {
+        return disponivel;
+    }
+
+    public void setDisponivel(boolean disponivel) {
+        this.disponivel = disponivel;
     }
 }
