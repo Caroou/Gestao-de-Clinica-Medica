@@ -70,7 +70,7 @@ function renderHorarios() {
   const el = document.getElementById('lista-horarios');
   if (!el) return;
   if (!medicoAtual) {
-    el.innerHTML = '<p style="color:#64748b;padding:1rem">Não foi possível vincular este login a um cadastro de médico.</p>';
+    el.innerHTML = '<p style="color:#64748b;padding:1rem">Não foi possível vincular este usuário a um cadastro de médico.</p>';
     return;
   }
   const slots = ClinicaDemo.horarios().filter(item => String(item.medicoId) === String(medicoAtual.id))

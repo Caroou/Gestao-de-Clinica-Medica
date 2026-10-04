@@ -4,14 +4,16 @@ O admin não é criado automaticamente ao iniciar o sistema e não existe opçã
 
 ## Windows PowerShell
 
-Na pasta do projeto:
+Obs: o servidor da aplicação precisa estar funcionando antes.
+
+Na pasta do projeto execute o comando:
 
 ```powershell
-mvn.cmd -DskipTests package
-java -jar target/gestao-de-clinica-medica-0.0.1-SNAPSHOT.jar --criar-admin
+.\mvnw.cmd -DskipTests package
+java -jar target\gestao-de-clinica-medica-0.0.1-SNAPSHOT.jar --criar-admin
 ```
 
-O programa pede o login e a senha. A senha é digitada sem aparecer no terminal e precisa ter de 15 a 72 bytes UTF-8. Depois da confirmação, o programa cria o usuário como `ADMIN` e encerra sem iniciar o servidor web.
+O programa pede o login e a senha. A senha é digitada sem aparecer no terminal e precisa ter de 15 a 72 caracteres UTF-8. Depois da confirmação, o programa cria o usuário como `ADMIN` e encerra sem iniciar o servidor web.
 
 O valor salvo no banco é um hash BCrypt, feito pelo mesmo `PasswordEncoder` usado pelo cadastro e pelo login. Se o login já existir, o comando não altera nem promove a conta existente.
 

@@ -61,18 +61,45 @@ function fecharModalAgendamento() {
 
 async function carregarMedicos() {
   const select = document.getElementById('select-medico');
+  const selectEspecialidade = document.getElementById('select-especialidade');
+  const mensagemEspecialidades = document.getElementById('msg-especialidades');
   let apiMedicos = [];
+  let apiEspecialidades = [];
   try { apiMedicos = await MedicoAPI.listar(); } catch { /* permite usar os médicos já guardados nesta demonstração */ }
+  try { apiEspecialidades = await EspecialidadeAPI.listar(); } catch { /* indica abaixo que não foi possível carregar a lista */ }
+
   const mapa = new Map();
   [...ClinicaDemo.medicosLocais(), ...apiMedicos].forEach(m => {
     const medicoId = m.id;
     if (medicoId != null) mapa.set(String(medicoId), m);
   });
   medicosDisponiveis = [...mapa.values()];
-  select.innerHTML = '<option value="">-- Selecione um médico --</option>' + medicosDisponiveis.map(m =>
+  selectEspecialidade.innerHTML = '<option value="">-- Selecione uma especialidade --</option>' + apiEspecialidades.map(e =>
+    `<option value="${escapar(e.id)}">${escapar(e.nome)}</option>`
+  ).join('');
+  mensagemEspecialidades.textContent = apiEspecialidades.length
+    ? 'Escolha uma especialidade para ver os médicos disponíveis.'
+    : 'Não foi possível carregar as especialidades. Verifique se há especialidades cadastradas e se a API está disponível.';
+  select.disabled = true;
+  select.innerHTML = '<option value="">-- Selecione primeiro a especialidade --</option>';
+}
+
+function filtrarMedicosPorEspecialidade() {
+  const especialidadeId = document.getElementById('select-especialidade').value;
+  const select = document.getElementById('select-medico');
+  document.getElementById('div-horarios').classList.add('hidden');
+  document.getElementById('select-horario').innerHTML = '';
+  const filtrados = especialidadeId
+    ? medicosDisponiveis.filter(m => (m.especialidadeIds || []).some(id => String(id) === String(especialidadeId)))
+    : [];
+
+  select.disabled = !especialidadeId;
+  select.innerHTML = '<option value="">-- Selecione um médico --</option>' + filtrados.map(m =>
     `<option value="${escapar(m.id)}">${escapar(m.nome)}${m.crm ? ` (CRM: ${escapar(m.crm)})` : ''}</option>`
   ).join('');
-  if (!medicosDisponiveis.length) select.innerHTML += '<option value="" disabled>Nenhum médico cadastrado</option>';
+  if (especialidadeId && !filtrados.length) {
+    select.innerHTML += '<option value="" disabled>Nenhum médico cadastrado para esta especialidade</option>';
+  }
 }
 
 function carregarHorarios() { atualizarHorarios(); }

@@ -19,7 +19,7 @@
         </svg>
       </div>
       <h1 class="text-2xl font-bold">Criar Conta</h1>
-      <p class="text-blue-100 text-sm mt-1">Junte-se à nossa plataforma médica</p>
+      <p class="text-blue-100 text-sm mt-1">Cadastre-se para ter acesso à plataforma</p>
     </div>
 
     <div class="p-8">
@@ -307,7 +307,7 @@
       setLoading('btn-medico', true, 'Finalizar Cadastro ✓');
       try {
         const medico = await MedicoAPI.cadastrar(dados);
-        ClinicaDemo.salvarMedico({ id: medico.id, usuarioId: idUsuarioCriado, nome: dados.nome, crm: dados.crm });
+        ClinicaDemo.salvarMedico({ id: medico.id, usuarioId: idUsuarioCriado, nome: dados.nome, crm: dados.crm, especialidadeIds: dados.especialidadeIds });
         salvarSessao({ ...pegarSessao(), medicoId: medico.id, nomeMedico: dados.nome });
         setMsg('msg-medico', '✅ Cadastro realizado! Abrindo sua área médica...', 'sucesso');
         setTimeout(() => window.location.href = '/pages/dashboard-medico.html', 700);
