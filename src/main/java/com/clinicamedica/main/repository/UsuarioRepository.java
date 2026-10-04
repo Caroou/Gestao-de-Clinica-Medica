@@ -7,5 +7,7 @@ import java.util.Optional;
 //O JpaRepository já vem com cadastrar(), buscarPorId(), deletar() prontos.
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
+    Optional<Usuario> findByLogin(String login);
+
     Optional<Usuario> findByLoginAndAtivoTrue(String login);
 }

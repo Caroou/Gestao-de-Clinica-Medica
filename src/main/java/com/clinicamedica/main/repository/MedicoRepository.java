@@ -7,4 +7,6 @@ public interface MedicoRepository extends JpaRepository<Medico, Integer> {
 
     boolean existsByCrm(String crm);
 
+    boolean existsByCrmAndIdNot(String crm, Integer id);
+
 }

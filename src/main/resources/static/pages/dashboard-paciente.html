@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Área do Paciente – Clínica Médica</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="brand">🏥 Portal do Paciente</div>
+    <div style="display:flex;align-items:center;gap:1rem">
+      <span class="nav-user" id="nome-usuario"></span>
+      <button class="btn-sair" onclick="sair()">Sair</button>
+    </div>
+  </nav>
+
+  <!-- Conteúdo -->
+  <main class="main-content">
+
+    <!-- Ações rápidas -->
+    <div class="action-grid">
+      <div class="action-card" onclick="abrirModalAgendamento()">
+        <span class="action-icon">📅</span>
+        <h3>Agendar Consulta</h3>
+        <p>Escolha médico e horário disponível</p>
+      </div>
+      <div class="action-card">
+        <span class="action-icon">👤</span>
+        <h3>Meu Perfil</h3>
+        <p>Atualize seus dados pessoais</p>
+      </div>
+    </div>
+
+    <!-- Lista de consultas -->
+    <div class="table-card">
+      <div class="table-header">Minhas Consultas Agendadas</div>
+      <div style="padding:1.25rem" id="lista-consultas">
+        <p style="color:#64748b">Carregando...</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modal: Agendar Consulta -->
+  <div class="modal-overlay hidden" id="modal-agendamento">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Nova Consulta</h3>
+        <button class="btn-close" onclick="fecharModalAgendamento()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Médico</label>
+          <select id="select-medico" onchange="carregarHorarios()">
+            <option value="">-- Selecione --</option>
+          </select>
+        </div>
+        <div class="form-group hidden" id="div-horarios">
+          <label>Horários Disponíveis</label>
+          <select id="select-horario"></select>
+          <small style="color:#94a3b8;margin-top:.25rem;display:block">
+            Os horários são definidos pelo médico. Reservas desta demonstração ficam salvas neste navegador.
+          </small>
+        </div>
+        <div class="form-group">
+          <label>Motivo da Consulta (opcional)</label>
+          <input type="text" id="obs-consulta" placeholder="Ex: dor de cabeça persistente">
+        </div>
+        <div id="msg-agendamento" class="msg"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="fecharModalAgendamento()">Cancelar</button>
+        <button class="btn btn-primary" onclick="confirmarAgendamento()">Confirmar Agendamento</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/demo-store.js"></script>
+  <script src="../js/dashboard-paciente.js"></script>
+</body>
+</html>

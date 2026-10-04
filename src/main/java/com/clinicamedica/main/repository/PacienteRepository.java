@@ -11,4 +11,6 @@ public interface PacienteRepository extends JpaRepository<Paciente, Integer> {
     // O Spring cria o SQL automático: SELECT count(*) FROM paciente WHERE email = ?
     boolean existsByEmail(String email);
 
+    boolean existsByEmailAndIdNot(String email, Integer id);
+
 }

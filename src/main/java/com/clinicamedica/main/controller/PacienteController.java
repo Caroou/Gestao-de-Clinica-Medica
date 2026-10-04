@@ -2,6 +2,9 @@ package com.clinicamedica.main.controller;
 
 import com.clinicamedica.main.dto.PacienteCadastroDTO;
 import com.clinicamedica.main.dto.PacienteRetornoDTO;
+import com.clinicamedica.main.dto.PacienteAdminAtualizacaoDTO;
+import com.clinicamedica.main.config.SessionAuthenticationFilter;
+import jakarta.servlet.http.HttpSession;
 import com.clinicamedica.main.service.PacienteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +23,10 @@ public class PacienteController {
 
     // Rota para cadastrar um novo paciente
     @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody PacienteCadastroDTO dados) {
+    public ResponseEntity<?> cadastrar(@RequestBody PacienteCadastroDTO dados, HttpSession sessao) {
         try {
-            PacienteRetornoDTO novoPaciente = pacienteService.cadastrarPaciente(dados);
+            Integer usuarioId = (Integer) sessao.getAttribute(SessionAuthenticationFilter.USER_ID);
+            PacienteRetornoDTO novoPaciente = pacienteService.cadastrarPaciente(dados, usuarioId);
             return ResponseEntity.ok(novoPaciente);
         } catch (IllegalArgumentException e) {
             // Se o Service gritar que o CPF ou Email já existe, cai aqui no erro 400
@@ -35,5 +39,16 @@ public class PacienteController {
     public ResponseEntity<List<PacienteRetornoDTO>> listarTodos() {
         List<PacienteRetornoDTO> pacientes = pacienteService.listarTodos();
         return ResponseEntity.ok(pacientes);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizarDadosAdministrativos(
+            @PathVariable Integer id,
+            @RequestBody PacienteAdminAtualizacaoDTO dados) {
+        try {
+            return ResponseEntity.ok(pacienteService.atualizarDadosAdministrativos(id, dados));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

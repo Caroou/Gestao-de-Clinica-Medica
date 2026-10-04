@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Área Médica – Clínica Médica</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar" style="background:#1e293b">
+    <div class="brand">🩺 Área Médica</div>
+    <div style="display:flex;align-items:center;gap:1rem">
+      <span class="nav-user">Dr(a). <span id="nome-medico"></span></span>
+      <button class="btn-sair" onclick="abrirModalHorario()" style="background:rgba(37,99,235,.7)">+ Disponibilizar Horário</button>
+      <button class="btn-sair" onclick="sair()">Sair</button>
+    </div>
+  </nav>
+
+  <!-- Conteúdo -->
+  <main class="main-content">
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:1.5rem">
+      <div>
+        <h2 style="font-size:1.4rem;font-weight:700">Consultas agendadas</h2>
+        <p style="color:#64748b">Acompanhe suas reservas e registre os atendimentos</p>
+      </div>
+      <span class="badge badge-green" id="total-pacientes" style="font-size:.875rem;padding:.4rem 1rem"></span>
+    </div>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Horário</th>
+            <th>Paciente</th>
+            <th>Status</th>
+            <th style="text-align:right">Ação</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-agenda"></tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- Modal: Prontuário / Atendimento -->
+  <div class="modal-overlay hidden" id="modal-prontuario">
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header">
+        <h3 id="titulo-prontuario">Prontuário</h3>
+        <button class="btn-close" onclick="fecharProntuario()">✕</button>
+      </div>
+      <div class="modal-body">
+        <small style="color:#94a3b8;display:block;margin-bottom:1rem">
+          Atendimento de demonstração salvo neste navegador. A integração com o prontuário do backend será adicionada quando a API estiver pronta.
+        </small>
+        <div class="form-group">
+          <label>Diagnóstico</label>
+          <textarea id="diagnostico" rows="3" placeholder="Descreva os sintomas e diagnóstico..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Prescrição Médica</label>
+          <textarea id="prescricao" rows="2" placeholder="Medicamentos, dosagem..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Observações Clínicas</label>
+          <textarea id="obs-clinica" rows="2" placeholder="Observações adicionais..."></textarea>
+        </div>
+        <div id="msg-prontuario" class="msg"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="fecharProntuario()">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarProntuario()">Salvar Prontuário</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Disponibilizar Horário (Agenda) -->
+  <div class="modal-overlay hidden" id="modal-horario">
+    <div class="modal" style="max-width:420px">
+      <div class="modal-header">
+        <h3>Disponibilizar Horário</h3>
+        <button class="btn-close" onclick="fecharModalHorario()">✕</button>
+      </div>
+      <div class="modal-body">
+        <small style="color:#94a3b8;display:block;margin-bottom:1rem">
+          Horários futuros ficam disponíveis para reserva pelos pacientes neste navegador.
+        </small>
+        <div class="form-group">
+          <label>Data</label>
+          <input type="date" id="agenda-data">
+        </div>
+        <div class="form-group">
+          <label>Horário</label>
+          <input type="time" id="agenda-hora">
+        </div>
+        <div id="msg-horario" class="msg"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="fecharModalHorario()">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarHorario()">Salvar Horário</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="main-content" style="padding-top:0">
+    <div class="table-card">
+      <div class="table-header">Horários disponibilizados</div>
+      <div style="padding:1.25rem" id="lista-horarios"><p style="color:#64748b">Carregando...</p></div>
+    </div>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/demo-store.js"></script>
+  <script src="../js/dashboard-medico.js"></script>
+</body>
+</html>
