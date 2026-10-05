@@ -1,9 +1,11 @@
 package com.clinicamedica.main.service;
 
 import com.clinicamedica.main.dto.MedicoCadastroDTO;
+import com.clinicamedica.main.dto.MedicoAdminAtualizacaoDTO;
 import com.clinicamedica.main.dto.MedicoRetornoDTO;
 import com.clinicamedica.main.model.Especialidade;
 import com.clinicamedica.main.model.Medico;
+import com.clinicamedica.main.model.PerfilUsuario;
 import com.clinicamedica.main.model.Usuario;
 import com.clinicamedica.main.repository.EspecialidadeRepository;
 import com.clinicamedica.main.repository.MedicoRepository;
@@ -29,7 +31,12 @@ public class MedicoService {
         this.especialidadeRepository = especialidadeRepository;
     }
 
-    public MedicoRetornoDTO cadastrarMedico(MedicoCadastroDTO dados) {
+    @org.springframework.transaction.annotation.Transactional
+    public MedicoRetornoDTO cadastrarMedico(MedicoCadastroDTO dados, Integer usuarioAutenticadoId) {
+        if (dados.usuarioId() == null || !dados.usuarioId().equals(usuarioAutenticadoId)) {
+            throw new IllegalArgumentException("O médico só pode concluir o cadastro da própria conta.");
+        }
+
 
         // 1. Validação do CRM
         if (dados.crm() == null || dados.crm().isBlank()) {
@@ -52,6 +59,9 @@ public class MedicoService {
                         new IllegalArgumentException(
                                 "Usuário vinculado não encontrado."
                         ));
+        if (!usuario.isAtivo() || usuario.getPerfilUsuario() != PerfilUsuario.MEDICO) {
+            throw new IllegalArgumentException("O usuário vinculado não possui perfil médico ativo.");
+        }
 
         // 3. Cria o médico
         Medico medico = new Medico();
@@ -62,7 +72,9 @@ public class MedicoService {
         medico.setTelefone(dados.telefone());
 
         // 4. Busca e adiciona as especialidades
-        if (dados.especialidadeIds() != null) {
+        System.out.println("DEBUG - IDs recebidos no JSON: " + dados.especialidadeIds());
+
+        if (dados.especialidadeIds() != null && !dados.especialidadeIds().isEmpty()) {
 
             for (Integer especialidadeId : dados.especialidadeIds()) {
 
@@ -74,8 +86,11 @@ public class MedicoService {
                                                         + especialidadeId
                                         ));
 
+                System.out.println("DEBUG - Vinculando especialidade: " + especialidade.getNome());
                 medico.getEspecialidades().add(especialidade);
             }
+        } else {
+            System.out.println("DEBUG - A lista de especialidadeIds veio NULA ou VAZIA do Postman!");
         }
 
         // 5. Salva
@@ -91,6 +106,27 @@ public class MedicoService {
                 .stream()
                 .map(MedicoRetornoDTO::new)
                 .toList();
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public MedicoRetornoDTO atualizarDadosAdministrativos(Integer id, MedicoAdminAtualizacaoDTO dados) {
+        if (dados.nome() == null || dados.nome().isBlank()
+                || dados.crm() == null || dados.crm().isBlank()
+                || dados.telefone() == null || dados.telefone().isBlank()) {
+            throw new IllegalArgumentException("Informe nome, CRM e telefone.");
+        }
+
+        Medico medico = medicoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Médico não encontrado."));
+        String crm = dados.crm().trim();
+        if (!crm.equalsIgnoreCase(medico.getCrm()) && medicoRepository.existsByCrmAndIdNot(crm, id)) {
+            throw new IllegalArgumentException("Este CRM já está sendo usado por outro médico.");
+        }
+
+        medico.setNome(dados.nome().trim());
+        medico.setCrm(crm);
+        medico.setTelefone(dados.telefone().trim());
+        return new MedicoRetornoDTO(medicoRepository.save(medico));
     }
 
     public MedicoRetornoDTO buscarPorId(Integer id) {

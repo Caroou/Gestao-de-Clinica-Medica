@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro – Clínica Médica</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4 antialiased">
+
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-100">
+
+    <!-- Header -->
+    <div class="bg-blue-600 p-8 text-white text-center">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/20 mb-4">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold">Criar Conta</h1>
+      <p class="text-blue-100 text-sm mt-1">Cadastre-se para ter acesso à plataforma</p>
+    </div>
+
+    <div class="p-8">
+
+      <!-- Indicador de passos -->
+      <div class="flex items-center gap-2 mb-6">
+        <div id="ind-1" class="w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">1</div>
+        <div class="flex-1 h-0.5 bg-slate-200" id="linha-passos"></div>
+        <div id="ind-2" class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 text-xs font-bold flex items-center justify-center">2</div>
+      </div>
+
+      <!-- ── PASSO 1: USUÁRIO ── -->
+      <div id="passo-usuario">
+        <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Dados de Acesso</p>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1">Login</label>
+            <input id="login" type="text" placeholder="Escolha um nome de usuário"
+              class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1">Senha</label>
+            <input id="senha" type="password" placeholder="Mínimo 6 caracteres"
+              class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1">Tipo de Conta</label>
+            <select id="perfil"
+              class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all bg-white text-slate-800">
+              <option value="PACIENTE">Paciente</option>
+              <option value="MEDICO">Médico</option>
+            </select>
+          </div>
+
+          <div id="msg-usuario" class="hidden text-sm px-4 py-2.5 rounded-lg"></div>
+
+          <button id="btn-usuario" onclick="cadastrarUsuario()"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md shadow-blue-500/30 transition-all">
+            Continuar ➔
+          </button>
+          <p class="text-center text-sm text-slate-500">
+            Já tem conta? <a href="/pages/login.html" class="text-blue-600 hover:underline font-medium">Entrar</a>
+          </p>
+        </div>
+      </div>
+
+      <!-- ── PASSO 2A: PACIENTE ── -->
+      <div id="passo-paciente" class="hidden">
+        <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Dados do Paciente</p>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1">Nome Completo</label>
+            <input id="pac-nome" type="text" placeholder="Nome conforme RG"
+              class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1">CPF</label>
+              <input id="pac-cpf" type="text" placeholder="000.000.000-00"
+                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1">Data de Nascimento</label>
+              <input id="pac-data" type="date"
+                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1">Telefone</label>
+              <input id="pac-telefone" type="text" placeholder="(11) 99999-9999"
+                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1">E-mail</label>
+              <input id="pac-email" type="email" placeholder="email@exemplo.com"
+                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+            </div>
+          </div>
+
+          <div id="msg-paciente" class="hidden text-sm px-4 py-2.5 rounded-lg"></div>
+
+          <button id="btn-paciente" onclick="cadastrarPaciente()"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md shadow-blue-500/30 transition-all">
+            Finalizar Cadastro ✓
+          </button>
+        </div>
+      </div>
+
+      <!-- ── PASSO 2B: MÉDICO ── -->
+      <div id="passo-medico" class="hidden">
+        <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Dados do Médico</p>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1">Nome Completo</label>
+            <input id="med-nome" type="text" placeholder="Dr(a). Nome Sobrenome"
+              class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1">CRM</label>
+              <input id="med-crm" type="text" placeholder="123456-SP"
+                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1">Telefone</label>
+              <input id="med-telefone" type="text" placeholder="(11) 99999-9999"
+                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-2">Especialidades</label>
+            <div id="grid-especialidades"
+              class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200 max-h-44 overflow-y-auto">
+              <p class="text-slate-400 text-sm col-span-2">Carregando especialidades...</p>
+            </div>
+          </div>
+
+          <div id="msg-medico" class="hidden text-sm px-4 py-2.5 rounded-lg"></div>
+
+          <div class="flex gap-3 pt-1">
+            <button onclick="voltarPasso1()"
+              class="w-1/3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-3 rounded-lg transition-all">
+              ← Voltar
+            </button>
+            <button id="btn-medico" onclick="cadastrarMedico()"
+              class="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md shadow-blue-500/30 transition-all">
+              Finalizar Cadastro ✓
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/demo-store.js"></script>
+  <script>
+    let idUsuarioCriado = null;
+
+    // ── Helpers ──────────────────────────────────────
+    function mostrar(id)  { document.getElementById(id).classList.remove('hidden'); }
+    function esconder(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function setMsg(msgId, texto, tipo) {
+      const el = document.getElementById(msgId);
+      el.textContent = texto;
+      el.className = tipo === 'erro'
+        ? 'text-sm px-4 py-2.5 rounded-lg bg-red-50 text-red-700 border border-red-200'
+        : 'text-sm px-4 py-2.5 rounded-lg bg-green-50 text-green-700 border border-green-200';
+    }
+
+    function setLoading(btnId, loading, label) {
+      const btn = document.getElementById(btnId);
+      btn.disabled = loading;
+      btn.textContent = loading ? 'Aguarde...' : label;
+    }
+
+    function avancarIndicador() {
+      document.getElementById('ind-1').className =
+        'w-7 h-7 rounded-full bg-green-500 text-white text-xs font-bold flex items-center justify-center';
+      document.getElementById('ind-1').textContent = '✓';
+      document.getElementById('ind-2').className =
+        'w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center';
+      document.getElementById('linha-passos').className = 'flex-1 h-0.5 bg-blue-600';
+    }
+
+    function voltarPasso1() {
+      esconder('passo-medico');
+      mostrar('passo-usuario');
+      document.getElementById('ind-1').className =
+        'w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center';
+      document.getElementById('ind-1').textContent = '1';
+      document.getElementById('ind-2').className =
+        'w-7 h-7 rounded-full bg-slate-200 text-slate-500 text-xs font-bold flex items-center justify-center';
+      document.getElementById('linha-passos').className = 'flex-1 h-0.5 bg-slate-200';
+    }
+
+    // ── PASSO 1: Criar Usuário ────────────────────────
+    async function cadastrarUsuario() {
+      esconder('msg-usuario');
+      const login  = document.getElementById('login').value.trim();
+      const senha  = document.getElementById('senha').value;
+      const perfil = document.getElementById('perfil').value;
+
+      if (!login || !senha) {
+        setMsg('msg-usuario', 'Preencha todos os campos.', 'erro'); return;
+      }
+
+      setLoading('btn-usuario', true, 'Continuar ➔');
+      try {
+        const usuario = await UsuarioAPI.cadastrar({ login, senha, perfilUsuario: perfil });
+        idUsuarioCriado = usuario.id;
+        const sessao = await UsuarioAPI.login({ login, senha });
+        salvarSessao(sessao);
+        avancarIndicador();
+        esconder('passo-usuario');
+
+        if (perfil === 'PACIENTE') {
+          mostrar('passo-paciente');
+        } else {
+          await carregarEspecialidades();
+          mostrar('passo-medico');
+        }
+      } catch (e) {
+        setMsg('msg-usuario', '❌ ' + e.message, 'erro');
+      } finally {
+        setLoading('btn-usuario', false, 'Continuar ➔');
+      }
+    }
+
+    // ── PASSO 2A: Cadastrar Paciente ──────────────────
+    async function cadastrarPaciente() {
+      esconder('msg-paciente');
+      const dados = {
+        usuarioId:      idUsuarioCriado,
+        nome:           document.getElementById('pac-nome').value.trim(),
+        cpf:            document.getElementById('pac-cpf').value.trim(),
+        dataNascimento: document.getElementById('pac-data').value,
+        telefone:       document.getElementById('pac-telefone').value.trim(),
+        email:          document.getElementById('pac-email').value.trim(),
+      };
+
+      if (!dados.nome || !dados.cpf || !dados.dataNascimento || !dados.telefone || !dados.email) {
+        setMsg('msg-paciente', 'Preencha todos os campos.', 'erro'); return;
+      }
+
+      setLoading('btn-paciente', true, 'Finalizar Cadastro ✓');
+      try {
+        const paciente = await PacienteAPI.cadastrar(dados);
+        salvarSessao({ ...pegarSessao(), pacienteId: paciente.id, nomePaciente: dados.nome });
+        setMsg('msg-paciente', '✅ Cadastro realizado! Abrindo sua área de paciente...', 'sucesso');
+        setTimeout(() => window.location.href = '/pages/dashboard-paciente.html', 700);
+      } catch (e) {
+        setMsg('msg-paciente', '❌ ' + e.message, 'erro');
+      } finally {
+        setLoading('btn-paciente', false, 'Finalizar Cadastro ✓');
+      }
+    }
+
+    // ── PASSO 2B: Cadastrar Médico ────────────────────
+    async function carregarEspecialidades() {
+      const grid = document.getElementById('grid-especialidades');
+      try {
+        const lista = await EspecialidadeAPI.listar();
+        if (lista.length === 0) {
+          grid.innerHTML = '<p class="text-slate-400 text-sm col-span-2">Nenhuma especialidade cadastrada ainda.</p>';
+          return;
+        }
+        grid.innerHTML = lista.map(esp => `
+          <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+            <input type="checkbox" name="esp" value="${esp.id}"
+              class="w-4 h-4 accent-blue-600 rounded">
+            ${esp.nome}
+          </label>`).join('');
+      } catch {
+        grid.innerHTML = '<p class="text-red-400 text-sm col-span-2">Erro ao carregar especialidades.</p>';
+      }
+    }
+
+    async function cadastrarMedico() {
+      esconder('msg-medico');
+      const selecionados = [...document.querySelectorAll('input[name="esp"]:checked')]
+        .map(cb => parseInt(cb.value));
+
+      if (selecionados.length === 0) {
+        setMsg('msg-medico', 'Selecione ao menos uma especialidade.', 'erro'); return;
+      }
+
+      const dados = {
+        usuarioId:        idUsuarioCriado,
+        nome:             document.getElementById('med-nome').value.trim(),
+        crm:              document.getElementById('med-crm').value.trim(),
+        telefone:         document.getElementById('med-telefone').value.trim(),
+        especialidadeIds: selecionados,
+      };
+
+      if (!dados.nome || !dados.crm || !dados.telefone) {
+        setMsg('msg-medico', 'Preencha todos os campos.', 'erro'); return;
+      }
+
+      setLoading('btn-medico', true, 'Finalizar Cadastro ✓');
+      try {
+        const medico = await MedicoAPI.cadastrar(dados);
+        ClinicaDemo.salvarMedico({ id: medico.id, usuarioId: idUsuarioCriado, nome: dados.nome, crm: dados.crm, especialidadeIds: dados.especialidadeIds });
+        salvarSessao({ ...pegarSessao(), medicoId: medico.id, nomeMedico: dados.nome });
+        setMsg('msg-medico', '✅ Cadastro realizado! Abrindo sua área médica...', 'sucesso');
+        setTimeout(() => window.location.href = '/pages/dashboard-medico.html', 700);
+      } catch (e) {
+        setMsg('msg-medico', '❌ ' + e.message, 'erro');
+      } finally {
+        setLoading('btn-medico', false, 'Finalizar Cadastro ✓');
+      }
+    }
+  </script>
+</body>
+</html>

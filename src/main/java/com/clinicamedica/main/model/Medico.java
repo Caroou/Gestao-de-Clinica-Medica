@@ -26,7 +26,7 @@ public class Medico {
     @Convert(converter = CriptografiaAesConverter.class)
     private String telefone;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "medico_especialidade",
             joinColumns = @JoinColumn(name = "medico_id"),

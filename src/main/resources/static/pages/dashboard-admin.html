@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administração – Clínica Médica</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="navbar" style="background:#172554">
+    <div class="brand">🏥 Administração da Clínica</div>
+    <div style="display:flex;align-items:center;gap:1rem">
+      <span class="nav-user" id="nome-admin"></span>
+      <button class="btn-sair" onclick="sair()">Sair</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <div style="margin-bottom:1.5rem">
+      <h2 style="font-size:1.5rem;font-weight:700">Painel administrativo</h2>
+      <p style="color:#64748b">Gerencie cadastros da clínica com acesso administrativo.</p>
+    </div>
+
+    <div class="action-grid" style="margin-bottom:1.25rem">
+      <button class="btn btn-secondary" onclick="mostrarAba('pacientes')">Pacientes <span id="total-pacientes"></span></button>
+      <button class="btn btn-secondary" onclick="mostrarAba('medicos')">Médicos <span id="total-medicos"></span></button>
+      <button class="btn btn-secondary" onclick="mostrarAba('especialidades')">Especialidades <span id="total-especialidades"></span></button>
+    </div>
+
+    <section class="table-card admin-tab" id="aba-pacientes">
+      <div class="table-header">Pacientes</div>
+      <div style="padding:1rem 1.5rem"><input id="busca-pacientes" type="search" placeholder="Pesquisar por nome, CPF, e-mail ou telefone" oninput="renderPacientes()" style="width:100%;padding:.7rem 1rem;border:1px solid #cbd5e1;border-radius:9px"></div>
+      <div style="overflow-x:auto">
+        <table><thead><tr><th>Nome</th><th>CPF</th><th>E-mail</th><th>Telefone</th><th></th></tr></thead><tbody id="tbody-pacientes"></tbody></table>
+      </div>
+    </section>
+
+    <section class="table-card admin-tab hidden" id="aba-medicos">
+      <div class="table-header">Médicos</div>
+      <div style="padding:1rem 1.5rem"><input id="busca-medicos" type="search" placeholder="Pesquisar por nome, CRM, telefone ou especialidade" oninput="renderMedicos()" style="width:100%;padding:.7rem 1rem;border:1px solid #cbd5e1;border-radius:9px"></div>
+      <div style="overflow-x:auto">
+        <table><thead><tr><th>Nome</th><th>CRM</th><th>Telefone</th><th>Especialidades</th><th></th></tr></thead><tbody id="tbody-medicos"></tbody></table>
+      </div>
+    </section>
+
+    <section class="table-card admin-tab hidden" id="aba-especialidades">
+      <div class="table-header">Especialidades</div>
+      <form id="form-especialidade" style="display:flex;gap:.75rem;padding:1rem 1.5rem;flex-wrap:wrap">
+        <input id="nova-especialidade" type="text" maxlength="100" required placeholder="Nome da especialidade" style="flex:1;min-width:220px;padding:.7rem 1rem;border:1px solid #cbd5e1;border-radius:9px">
+        <button class="btn btn-primary" style="width:auto" type="submit">Cadastrar</button>
+      </form>
+      <div id="msg-especialidade" class="msg" style="margin:0 1.5rem 1rem"></div>
+      <div style="padding:1rem 1.5rem" id="lista-especialidades"></div>
+    </section>
+  </main>
+
+  <div class="modal-overlay hidden" id="modal-edicao">
+    <form class="modal" id="form-edicao">
+      <div class="modal-header"><h3 id="titulo-edicao">Editar cadastro</h3><button class="btn-close" type="button" onclick="fecharEdicao()">✕</button></div>
+      <div class="modal-body">
+        <input id="edicao-id" type="hidden">
+        <input id="edicao-tipo" type="hidden">
+        <div class="form-group"><label for="edicao-nome">Nome</label><input id="edicao-nome" required></div>
+        <div class="form-group" id="grupo-edicao-identificador"><label id="label-edicao-identificador" for="edicao-identificador">Identificador</label><input id="edicao-identificador"></div>
+        <div class="form-group"><label for="edicao-telefone">Telefone</label><input id="edicao-telefone" required></div>
+        <div class="form-group hidden" id="grupo-edicao-email"><label for="edicao-email">E-mail</label><input id="edicao-email" type="email" required></div>
+        <div id="msg-edicao" class="msg"></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" type="button" onclick="fecharEdicao()">Cancelar</button><button class="btn btn-primary" type="submit">Salvar alterações</button></div>
+    </form>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/dashboard-admin.js"></script>
+</body>
+</html>

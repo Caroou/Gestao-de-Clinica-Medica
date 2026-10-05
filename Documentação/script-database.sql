@@ -1,5 +1,5 @@
-DROP DATABASE clinica_medica;
-CREATE DATABASE IF NOT EXISTS clinica_medica;
+DROP DATABASE IF EXISTS clinica_medica; -- APAGA O BANCO SE EXISTIR
+CREATE DATABASE clinica_medica; -- CRIA NOVAMENTE SE NÃO EXISTIR
 USE clinica_medica;
 
 -- 1. Tabela de Usuários (Autenticação)

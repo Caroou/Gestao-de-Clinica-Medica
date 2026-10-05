@@ -2,11 +2,14 @@ package com.clinicamedica.main.service;
 
 import com.clinicamedica.main.dto.PacienteCadastroDTO;
 import com.clinicamedica.main.dto.PacienteRetornoDTO;
+import com.clinicamedica.main.dto.PacienteAdminAtualizacaoDTO;
 import com.clinicamedica.main.model.Paciente;
+import com.clinicamedica.main.model.PerfilUsuario;
 import com.clinicamedica.main.model.Usuario;
 import com.clinicamedica.main.repository.PacienteRepository;
 import com.clinicamedica.main.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,7 +25,11 @@ public class PacienteService {
         this.usuarioRepository = usuarioRepository;
     }
 
-    public PacienteRetornoDTO cadastrarPaciente(PacienteCadastroDTO dados) {
+    public PacienteRetornoDTO cadastrarPaciente(PacienteCadastroDTO dados, Integer usuarioAutenticadoId) {
+        if (dados.usuarioId() == null || !dados.usuarioId().equals(usuarioAutenticadoId)) {
+            throw new IllegalArgumentException("O paciente só pode concluir o cadastro da própria conta.");
+        }
+
         // 1. Validações de duplicidade
         if (pacienteRepository.existsByCpf(dados.cpf())) {
             throw new IllegalArgumentException("Este CPF já está cadastrado.");
@@ -34,6 +41,9 @@ public class PacienteService {
         // 2. Busca o Usuário no banco para fazer a relação (Chave Estrangeira)
         Usuario usuario = usuarioRepository.findById(dados.usuarioId())
                 .orElseThrow(() -> new IllegalArgumentException("Usuário vinculado não encontrado."));
+        if (!usuario.isAtivo() || usuario.getPerfilUsuario() != PerfilUsuario.PACIENTE) {
+            throw new IllegalArgumentException("O usuário vinculado não possui perfil de paciente ativo.");
+        }
 
         // 3. Monta a entidade Paciente com os dados do DTO
         Paciente paciente = new Paciente();
@@ -59,5 +69,26 @@ public class PacienteService {
                 .stream()
                 .map(PacienteRetornoDTO::new) // Converte cada Paciente do banco para o DTO de retorno
                 .toList();
+    }
+
+    @Transactional
+    public PacienteRetornoDTO atualizarDadosAdministrativos(Integer id, PacienteAdminAtualizacaoDTO dados) {
+        if (dados.nome() == null || dados.nome().isBlank()
+                || dados.telefone() == null || dados.telefone().isBlank()
+                || dados.email() == null || !dados.email().contains("@")) {
+            throw new IllegalArgumentException("Informe nome, telefone e um e-mail válido.");
+        }
+
+        Paciente paciente = pacienteRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Paciente não encontrado."));
+        String email = dados.email().trim();
+        if (!email.equalsIgnoreCase(paciente.getEmail()) && pacienteRepository.existsByEmailAndIdNot(email, id)) {
+            throw new IllegalArgumentException("Este e-mail já está sendo usado por outro paciente.");
+        }
+
+        paciente.setNome(dados.nome().trim());
+        paciente.setTelefone(dados.telefone().trim());
+        paciente.setEmail(email);
+        return new PacienteRetornoDTO(pacienteRepository.save(paciente));
     }
 }
