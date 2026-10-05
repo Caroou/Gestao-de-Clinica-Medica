@@ -49,7 +49,7 @@ CREATE TABLE medico_especialidade (
 );
 
 -- 6. Tabela de Agenda (Criando as "Gavetas" de horário)
-CREATE TABLE agenda (
+CREATE TABLE agendaService (
     id INT AUTO_INCREMENT PRIMARY KEY,
     medico_id INT NOT NULL,
     data_agenda DATE NOT NULL,
@@ -62,11 +62,11 @@ CREATE TABLE agenda (
 -- 7. Tabela de Consultas (Ocupando a "Gaveta")
 CREATE TABLE consulta (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    agenda_id INT UNIQUE NOT NULL,   -- UNIQUE garante que cada horário da agenda só pode ter 1 consulta!
+    agenda_id INT UNIQUE NOT NULL,   -- UNIQUE garante que cada horário da agendaService só pode ter 1 consulta!
     paciente_id INT NOT NULL,
     status ENUM('AGENDADO', 'CANCELADO', 'REALIZADO', 'NÃO COMPARECEU') DEFAULT 'AGENDADO',
     observacoes TEXT,
-    FOREIGN KEY (agenda_id) REFERENCES agenda(id) ON DELETE CASCADE,
+    FOREIGN KEY (agenda_id) REFERENCES agendaService(id) ON DELETE CASCADE,
     FOREIGN KEY (paciente_id) REFERENCES paciente(id) ON DELETE CASCADE
 );
 
