@@ -7,8 +7,10 @@ import com.clinicamedica.main.model.Medico;
 import com.clinicamedica.main.repository.AgendaRepository;
 import com.clinicamedica.main.repository.MedicoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
 public class AgendaService {
@@ -20,16 +22,28 @@ public class AgendaService {
             AgendaRepository agendaRepository,
             MedicoRepository medicoRepository
     ) {
+
         this.agendaRepository = agendaRepository;
         this.medicoRepository = medicoRepository;
     }
 
-    public AgendaRetornoDTO cadastrar(AgendaCadastroDTO dados) {
+    @Transactional
+    public AgendaRetornoDTO cadastrar(AgendaCadastroDTO dados, String login) {
 
-        Medico medico = medicoRepository.findById(dados.medicoId())
+        if (dados == null) throw new IllegalArgumentException("Informe a data e o horário.");
+
+        Medico medico = medicoRepository.findByUsuario_Login(login)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Médico não encontrado.")
+                        new IllegalArgumentException("O cadastro deste médico não foi encontrado.")
                 );
+
+        if (dados.dataAgenda() == null || dados.horario() == null
+                || !LocalDateTime.of(dados.dataAgenda(), dados.horario()).isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Informe uma data e um horário futuros.");
+        }
+        if (agendaRepository.existsByMedico_IdAndDataAgendaAndHorario(medico.getId(), dados.dataAgenda(), dados.horario())) {
+            throw new IllegalArgumentException("Este horário já foi cadastrado.");
+        }
 
         Agenda agenda = new Agenda();
 
@@ -42,12 +56,23 @@ public class AgendaService {
         return new AgendaRetornoDTO(salva);
     }
 
-    public List<AgendaRetornoDTO> listarTodos() {
+    @Transactional(readOnly = true)
+    public List<AgendaRetornoDTO> listarDisponiveis(Integer medicoId) {
 
-        return agendaRepository.findAll()
+        List<Agenda> agendas = medicoId == null
+                ? agendaRepository.findByDisponivelTrueOrderByDataAgendaAscHorarioAsc()
+                : agendaRepository.findByDisponivelTrueAndMedico_IdOrderByDataAgendaAscHorarioAsc(medicoId);
+        return agendas
                 .stream()
+                .filter(agenda -> LocalDateTime.of(agenda.getDataAgenda(), agenda.getHorario()).isAfter(LocalDateTime.now()))
                 .map(AgendaRetornoDTO::new)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AgendaRetornoDTO> listarDoMedico(String login) {
+        return agendaRepository.findByMedico_Usuario_LoginOrderByDataAgendaAscHorarioAsc(login)
+                .stream().map(AgendaRetornoDTO::new).toList();
     }
 
     public AgendaRetornoDTO buscarPorId(Integer id) {
@@ -60,12 +85,16 @@ public class AgendaService {
         return new AgendaRetornoDTO(agenda);
     }
 
-    public void excluir(Integer id) {
-
-        if (!agendaRepository.existsById(id)) {
-            throw new RuntimeException("Agenda não encontrada.");
+    @Transactional
+    public void excluir(Integer id, String login) {
+        Agenda agenda = agendaRepository.buscarPorIdParaAtualizacao(id)
+                .orElseThrow(() -> new IllegalArgumentException("Horário não encontrado."));
+        if (!agenda.getMedico().getUsuario().getLogin().equals(login)) {
+            throw new IllegalArgumentException("Você só pode remover horários da sua própria agenda.");
         }
-
-        agendaRepository.deleteById(id);
+        if (!agenda.isDisponivel()) {
+            throw new IllegalArgumentException("Um horário reservado não pode ser removido.");
+        }
+        agendaRepository.delete(agenda);
     }
 }

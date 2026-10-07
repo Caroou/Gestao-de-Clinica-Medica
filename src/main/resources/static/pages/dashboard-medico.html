@@ -6,7 +6,7 @@
   <title>Área Médica – Clínica Médica</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
+<body class="pagina-medico">
 
   <!-- Navbar -->
   <nav class="navbar" style="background:#1e293b">
@@ -21,7 +21,7 @@
   <!-- Conteúdo -->
   <main class="main-content">
 
-    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:1.5rem">
+      <div class="cabecalho-agenda-medico">
       <div>
         <h2 style="font-size:1.4rem;font-weight:700">Consultas agendadas</h2>
         <p style="color:#64748b">Acompanhe sua agenda e registre os atendimentos</p>
@@ -30,6 +30,14 @@
     </div>
 
     <div class="table-card">
+      <div class="abas-consultas" role="tablist" aria-label="Consultas">
+        <button class="aba-consultas ativa" id="aba-proximas" onclick="mostrarConsultas('proximas')" role="tab" aria-selected="true">Agendadas <span id="contagem-proximas">0</span></button>
+        <button class="aba-consultas" id="aba-historico" onclick="mostrarConsultas('historico')" role="tab" aria-selected="false">Histórico <span id="contagem-historico">0</span></button>
+      </div>
+      <div class="filtro-historico hidden" id="filtro-historico">
+        <label for="buscar-historico">Filtrar histórico por paciente</label>
+        <input type="search" id="buscar-historico" placeholder="Nome do paciente" oninput="renderAgenda()">
+      </div>
       <table>
         <thead>
           <tr>
@@ -54,25 +62,44 @@
       </div>
       <div class="modal-body">
         <small style="color:#94a3b8;display:block;margin-bottom:1rem">
-          Atendimento de demonstração salvo neste navegador. A integração com o prontuário do backend será adicionada quando a API estiver pronta.
+          O atendimento fica vinculado à consulta e registra diagnóstico, prescrição e observações clínicas.
         </small>
         <div class="form-group">
           <label>Diagnóstico</label>
-          <textarea id="diagnostico" rows="3" placeholder="Descreva os sintomas e diagnóstico..."></textarea>
+          <textarea id="diagnostico" rows="3" maxlength="48000" placeholder="Descreva os sintomas e diagnóstico..."></textarea>
         </div>
         <div class="form-group">
           <label>Prescrição Médica</label>
-          <textarea id="prescricao" rows="2" placeholder="Medicamentos, dosagem..."></textarea>
+          <textarea id="prescricao" rows="2" maxlength="48000" placeholder="Medicamentos, dosagem..."></textarea>
         </div>
         <div class="form-group">
           <label>Observações Clínicas</label>
-          <textarea id="obs-clinica" rows="2" placeholder="Observações adicionais..."></textarea>
+          <textarea id="obs-clinica" rows="2" maxlength="48000" placeholder="Observações adicionais..."></textarea>
         </div>
         <div id="msg-prontuario" class="msg"></div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="fecharProntuario()">Cancelar</button>
         <button class="btn btn-primary" onclick="salvarProntuario()">Salvar Prontuário</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de consulta do prontuário já registrado -->
+  <div class="modal-overlay hidden" id="modal-prontuario-leitura">
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header">
+        <h3 id="titulo-prontuario-leitura">Prontuário do paciente</h3>
+        <button class="btn-close" onclick="fecharProntuarioLeitura()" aria-label="Fechar">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="prontuario-data-leitura">Atendimento registrado em <strong id="data-prontuario-leitura"></strong></p>
+        <div class="form-group"><label>Diagnóstico</label><p id="diagnostico-prontuario-leitura"></p></div>
+        <div class="form-group"><label>Prescrição médica</label><p id="prescricao-prontuario-leitura"></p></div>
+        <div class="form-group"><label>Observações clínicas</label><p id="observacoes-prontuario-leitura"></p></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="fecharProntuarioLeitura()">Fechar</button>
       </div>
     </div>
   </div>
@@ -86,7 +113,7 @@
       </div>
       <div class="modal-body">
         <small style="color:#94a3b8;display:block;margin-bottom:1rem">
-          Horários futuros ficam disponíveis para reserva pelos pacientes neste navegador.
+          Horários futuros ficam disponíveis para reserva pelos pacientes.
         </small>
         <div class="form-group">
           <label>Data</label>
@@ -108,7 +135,7 @@
   <main class="main-content" style="padding-top:0">
     <div class="table-card">
       <div class="table-header">Horários disponibilizados</div>
-      <div style="padding:1.25rem" id="lista-horarios"><p style="color:#64748b">Carregando...</p></div>
+      <div class="lista-horarios-medico" id="lista-horarios"><p style="color:#64748b">Carregando...</p></div>
     </div>
   </main>
 

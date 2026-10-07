@@ -29,6 +29,18 @@ CREATE TABLE especialidade (
     nome VARCHAR(100) NOT NULL UNIQUE
 );
 
+INSERT INTO especialidade (nome) VALUES
+    ('Clínica Geral'),
+    ('Cardiologia'),
+    ('Dermatologia'),
+    ('Endocrinologia'),
+    ('Ginecologia'),
+    ('Neurologia'),
+    ('Oftalmologia'),
+    ('Ortopedia'),
+    ('Pediatria'),
+    ('Psiquiatria');
+
 -- 4. Tabela de Médicos
 CREATE TABLE medico (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -49,7 +61,7 @@ CREATE TABLE medico_especialidade (
 );
 
 -- 6. Tabela de Agenda (Criando as "Gavetas" de horário)
-CREATE TABLE agendaService (
+CREATE TABLE agenda (
     id INT AUTO_INCREMENT PRIMARY KEY,
     medico_id INT NOT NULL,
     data_agenda DATE NOT NULL,
@@ -62,12 +74,14 @@ CREATE TABLE agendaService (
 -- 7. Tabela de Consultas (Ocupando a "Gaveta")
 CREATE TABLE consulta (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    agenda_id INT UNIQUE NOT NULL,   -- UNIQUE garante que cada horário da agendaService só pode ter 1 consulta!
+    agenda_id INT NOT NULL,          -- O serviço libera novamente o horário quando uma consulta é cancelada.
     paciente_id INT NOT NULL,
+    especialidade_id INT NULL, -- Especialidade escolhida para esta consulta
     status ENUM('AGENDADO', 'CANCELADO', 'REALIZADO', 'NÃO COMPARECEU') DEFAULT 'AGENDADO',
     observacoes TEXT,
-    FOREIGN KEY (agenda_id) REFERENCES agendaService(id) ON DELETE CASCADE,
-    FOREIGN KEY (paciente_id) REFERENCES paciente(id) ON DELETE CASCADE
+    FOREIGN KEY (agenda_id) REFERENCES agenda(id) ON DELETE CASCADE,
+    FOREIGN KEY (paciente_id) REFERENCES paciente(id) ON DELETE CASCADE,
+    FOREIGN KEY (especialidade_id) REFERENCES especialidade(id) ON DELETE RESTRICT
 );
 
 -- 8. Tabela de Atendimentos Clínicos (Dados Clínicos Sensíveis)

@@ -10,6 +10,7 @@ import com.clinicamedica.main.repository.PacienteRepository;
 import com.clinicamedica.main.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.clinicamedica.main.validation.ValidacaoDados;
 
 import java.util.List;
 
@@ -26,15 +27,24 @@ public class PacienteService {
     }
 
     public PacienteRetornoDTO cadastrarPaciente(PacienteCadastroDTO dados, Integer usuarioAutenticadoId) {
+        if (dados == null) throw new IllegalArgumentException("Dados do paciente são obrigatórios.");
         if (dados.usuarioId() == null || !dados.usuarioId().equals(usuarioAutenticadoId)) {
             throw new IllegalArgumentException("O paciente só pode concluir o cadastro da própria conta.");
         }
 
-        // 1. Validações de duplicidade
-        if (pacienteRepository.existsByCpf(dados.cpf())) {
+        String nome = ValidacaoDados.textoObrigatorio(dados.nome(), "o nome", 255);
+        String cpf = ValidacaoDados.cpf(dados.cpf());
+        String telefone = ValidacaoDados.telefone(dados.telefone());
+        String email = ValidacaoDados.email(dados.email());
+        if (dados.dataNascimento() == null || !dados.dataNascimento().isBefore(java.time.LocalDate.now())) {
+            throw new IllegalArgumentException("Informe uma data de nascimento passada.");
+        }
+
+        // Validações de duplicidade
+        if (pacienteRepository.existsByCpf(cpf)) {
             throw new IllegalArgumentException("Este CPF já está cadastrado.");
         }
-        if (pacienteRepository.existsByEmail(dados.email())) {
+        if (pacienteRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Este E-mail já está cadastrado.");
         }
 
@@ -48,11 +58,11 @@ public class PacienteService {
         // 3. Monta a entidade Paciente com os dados do DTO
         Paciente paciente = new Paciente();
         paciente.setUsuario(usuario);
-        paciente.setNome(dados.nome());
-        paciente.setCpf(dados.cpf());
+        paciente.setNome(nome);
+        paciente.setCpf(cpf);
         paciente.setDataNascimento(dados.dataNascimento());
-        paciente.setTelefone(dados.telefone());
-        paciente.setEmail(dados.email());
+        paciente.setTelefone(telefone);
+        paciente.setEmail(email);
 
         // 4. Salva no banco.
         // É exatamente AQUI que a mágica acontece: o Hibernate vai chamar o seu
@@ -73,21 +83,19 @@ public class PacienteService {
 
     @Transactional
     public PacienteRetornoDTO atualizarDadosAdministrativos(Integer id, PacienteAdminAtualizacaoDTO dados) {
-        if (dados.nome() == null || dados.nome().isBlank()
-                || dados.telefone() == null || dados.telefone().isBlank()
-                || dados.email() == null || !dados.email().contains("@")) {
-            throw new IllegalArgumentException("Informe nome, telefone e um e-mail válido.");
-        }
+        if (dados == null) throw new IllegalArgumentException("Dados do paciente são obrigatórios.");
 
         Paciente paciente = pacienteRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Paciente não encontrado."));
-        String email = dados.email().trim();
+        String nome = ValidacaoDados.textoObrigatorio(dados.nome(), "o nome", 255);
+        String telefone = ValidacaoDados.telefone(dados.telefone());
+        String email = ValidacaoDados.email(dados.email());
         if (!email.equalsIgnoreCase(paciente.getEmail()) && pacienteRepository.existsByEmailAndIdNot(email, id)) {
             throw new IllegalArgumentException("Este e-mail já está sendo usado por outro paciente.");
         }
 
-        paciente.setNome(dados.nome().trim());
-        paciente.setTelefone(dados.telefone().trim());
+        paciente.setNome(nome);
+        paciente.setTelefone(telefone);
         paciente.setEmail(email);
         return new PacienteRetornoDTO(pacienteRepository.save(paciente));
     }

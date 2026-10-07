@@ -2,6 +2,7 @@ package com.clinicamedica.main.repository;
 
 import com.clinicamedica.main.model.Paciente;
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
 
 public interface PacienteRepository extends JpaRepository<Paciente, Integer> {
 
@@ -12,5 +13,7 @@ public interface PacienteRepository extends JpaRepository<Paciente, Integer> {
     boolean existsByEmail(String email);
 
     boolean existsByEmailAndIdNot(String email, Integer id);
+
+    Optional<Paciente> findByUsuario_Login(String login);
 
 }

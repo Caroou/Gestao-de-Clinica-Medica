@@ -23,7 +23,7 @@ public class Atendimento {
     @Convert(converter = CriptografiaAesConverter.class)
     private String prescricao;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "observacoes_clinicas", columnDefinition = "TEXT")
     @Convert(converter = CriptografiaAesConverter.class)
     private String observacoes;
 

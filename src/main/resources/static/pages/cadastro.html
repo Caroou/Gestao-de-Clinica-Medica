@@ -37,12 +37,12 @@
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">Login</label>
-            <input id="login" type="text" placeholder="Escolha um nome de usuário"
+            <input id="login" type="text" maxlength="100" autocomplete="username" placeholder="Escolha um nome de usuário"
               class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">Senha</label>
-            <input id="senha" type="password" placeholder="Mínimo 6 caracteres"
+            <input id="senha" type="password" minlength="8" maxlength="72" autocomplete="new-password" placeholder="Mínimo 8 caracteres"
               class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
           </div>
           <div>
@@ -72,13 +72,13 @@
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">Nome Completo</label>
-            <input id="pac-nome" type="text" placeholder="Nome conforme RG"
+            <input id="pac-nome" type="text" maxlength="255" placeholder="Nome conforme RG"
               class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-sm font-medium text-slate-600 mb-1">CPF</label>
-              <input id="pac-cpf" type="text" placeholder="000.000.000-00"
+              <input id="pac-cpf" type="text" data-mascara="cpf" inputmode="numeric" maxlength="14" autocomplete="off" placeholder="000.000.000-00"
                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
             </div>
             <div>
@@ -87,15 +87,15 @@
                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-sm font-medium text-slate-600 mb-1">Telefone</label>
-              <input id="pac-telefone" type="text" placeholder="(11) 99999-9999"
+              <input id="pac-telefone" type="tel" data-mascara="telefone" inputmode="tel" maxlength="15" placeholder="(11) 99999-9999"
                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-600 mb-1">E-mail</label>
-              <input id="pac-email" type="email" placeholder="email@exemplo.com"
+              <input id="pac-email" type="email" maxlength="255" placeholder="email@exemplo.com"
                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
             </div>
           </div>
@@ -115,18 +115,18 @@
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">Nome Completo</label>
-            <input id="med-nome" type="text" placeholder="Dr(a). Nome Sobrenome"
+              <input id="med-nome" type="text" maxlength="255" placeholder="Nome Sobrenome"
               class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-sm font-medium text-slate-600 mb-1">CRM</label>
-              <input id="med-crm" type="text" placeholder="123456-SP"
+              <input id="med-crm" type="text" maxlength="50" placeholder="123456-SP"
                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-600 mb-1">Telefone</label>
-              <input id="med-telefone" type="text" placeholder="(11) 99999-9999"
+              <input id="med-telefone" type="tel" data-mascara="telefone" inputmode="tel" maxlength="15" placeholder="(11) 99999-9999"
                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
             </div>
           </div>
@@ -157,11 +157,14 @@
     </div>
   </div>
 
+  <script src="../js/mascaras.js"></script>
   <script src="../js/api.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/demo-store.js"></script>
   <script>
     let idUsuarioCriado = null;
+
+    window.addEventListener('DOMContentLoaded', ativarMascarasContato);
 
     // ── Helpers ──────────────────────────────────────
     function mostrar(id)  { document.getElementById(id).classList.remove('hidden'); }
@@ -211,6 +214,9 @@
       if (!login || !senha) {
         setMsg('msg-usuario', 'Preencha todos os campos.', 'erro'); return;
       }
+      if (login.length > 100 || senha.length < 8 || new TextEncoder().encode(senha).length > 72) {
+        setMsg('msg-usuario', 'O login pode ter até 100 caracteres e a senha deve ter de 8 a 72 caracteres.', 'erro'); return;
+      }
 
       setLoading('btn-usuario', true, 'Continuar ➔');
       try {
@@ -240,14 +246,29 @@
       const dados = {
         usuarioId:      idUsuarioCriado,
         nome:           document.getElementById('pac-nome').value.trim(),
-        cpf:            document.getElementById('pac-cpf').value.trim(),
+        cpf:            somenteDigitos(document.getElementById('pac-cpf').value),
         dataNascimento: document.getElementById('pac-data').value,
-        telefone:       document.getElementById('pac-telefone').value.trim(),
+        telefone:       somenteDigitos(document.getElementById('pac-telefone').value),
         email:          document.getElementById('pac-email').value.trim(),
       };
 
       if (!dados.nome || !dados.cpf || !dados.dataNascimento || !dados.telefone || !dados.email) {
         setMsg('msg-paciente', 'Preencha todos os campos.', 'erro'); return;
+      }
+      if (dados.nome.length > 255 || dados.cpf.length !== 11) {
+        setMsg('msg-paciente', 'Informe um nome válido e 11 números para o CPF.', 'erro'); return;
+      }
+      if (!telefoneValido(dados.telefone)) {
+        setMsg('msg-paciente', 'Informe um telefone com DDD e 8 ou 9 dígitos.', 'erro'); return;
+      }
+      const hojeLocal = new Date();
+      hojeLocal.setMinutes(hojeLocal.getMinutes() - hojeLocal.getTimezoneOffset());
+      const hojeISO = hojeLocal.toISOString().slice(0, 10);
+      if (!Number.isFinite(Date.parse(`${dados.dataNascimento}T00:00:00`)) || dados.dataNascimento >= hojeISO) {
+        setMsg('msg-paciente', 'A data de nascimento deve ser uma data passada válida.', 'erro'); return;
+      }
+      if (!document.getElementById('pac-email').validity.valid || dados.email.length > 255) {
+        setMsg('msg-paciente', 'Informe um e-mail válido com até 255 caracteres.', 'erro'); return;
       }
 
       setLoading('btn-paciente', true, 'Finalizar Cadastro ✓');
@@ -272,12 +293,17 @@
           grid.innerHTML = '<p class="text-slate-400 text-sm col-span-2">Nenhuma especialidade cadastrada ainda.</p>';
           return;
         }
-        grid.innerHTML = lista.map(esp => `
-          <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-            <input type="checkbox" name="esp" value="${esp.id}"
-              class="w-4 h-4 accent-blue-600 rounded">
-            ${esp.nome}
-          </label>`).join('');
+        grid.replaceChildren(...lista.map(esp => {
+          const label = document.createElement('label');
+          label.className = 'flex items-center gap-2 text-sm text-slate-700 cursor-pointer';
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.name = 'esp';
+          checkbox.value = String(esp.id);
+          checkbox.className = 'w-4 h-4 accent-blue-600 rounded';
+          label.append(checkbox, document.createTextNode(` ${esp.nome}`));
+          return label;
+        }));
       } catch {
         grid.innerHTML = '<p class="text-red-400 text-sm col-span-2">Erro ao carregar especialidades.</p>';
       }
@@ -286,9 +312,9 @@
     async function cadastrarMedico() {
       esconder('msg-medico');
       const selecionados = [...document.querySelectorAll('input[name="esp"]:checked')]
-        .map(cb => parseInt(cb.value));
+        .map(cb => Number(cb.value));
 
-      if (selecionados.length === 0) {
+      if (selecionados.length === 0 || selecionados.some(id => !Number.isSafeInteger(id) || id <= 0)) {
         setMsg('msg-medico', 'Selecione ao menos uma especialidade.', 'erro'); return;
       }
 
@@ -296,12 +322,15 @@
         usuarioId:        idUsuarioCriado,
         nome:             document.getElementById('med-nome').value.trim(),
         crm:              document.getElementById('med-crm').value.trim(),
-        telefone:         document.getElementById('med-telefone').value.trim(),
+        telefone:         somenteDigitos(document.getElementById('med-telefone').value),
         especialidadeIds: selecionados,
       };
 
       if (!dados.nome || !dados.crm || !dados.telefone) {
         setMsg('msg-medico', 'Preencha todos os campos.', 'erro'); return;
+      }
+      if (dados.nome.length > 255 || dados.crm.length > 50 || !telefoneValido(dados.telefone)) {
+        setMsg('msg-medico', 'Confira o nome, CRM (até 50 caracteres) e telefone com DDD.', 'erro'); return;
       }
 
       setLoading('btn-medico', true, 'Finalizar Cadastro ✓');

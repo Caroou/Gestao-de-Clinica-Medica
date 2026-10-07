@@ -1,6 +1,7 @@
 package com.clinicamedica.main.model;
 
 import jakarta.persistence.*;
+import com.clinicamedica.main.config.StatusConsultaConverter;
 @Entity
 @Table(name = "consulta")
 public class Consulta {
@@ -8,15 +9,19 @@ public class Consulta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne
-    @JoinColumn(name = "agenda_id", nullable = false, unique = true)
+    @ManyToOne
+    @JoinColumn(name = "agenda_id", nullable = false)
     private Agenda agenda; // Já carrega o médico, o dia e a hora
 
     @ManyToOne
     @JoinColumn(name = "paciente_id", nullable = false)
     private Paciente paciente;
 
-    @Enumerated(EnumType.STRING)
+    @ManyToOne
+    @JoinColumn(name = "especialidade_id")
+    private Especialidade especialidade;
+
+    @Convert(converter = StatusConsultaConverter.class)
     @Column(nullable = false)
     private StatusConsulta status;
 
@@ -56,6 +61,14 @@ public class Consulta {
 
     public void setPaciente(Paciente paciente) {
         this.paciente = paciente;
+    }
+
+    public Especialidade getEspecialidade() {
+        return especialidade;
+    }
+
+    public void setEspecialidade(Especialidade especialidade) {
+        this.especialidade = especialidade;
     }
 
     public StatusConsulta getStatus() {

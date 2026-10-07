@@ -4,6 +4,7 @@ let medicosAdmin = [];
 let especialidadesAdmin = [];
 
 window.addEventListener('DOMContentLoaded', async () => {
+  ativarMascarasContato();
   sessaoAdmin = await exigirPerfilNoServidor('ADMIN');
   if (!sessaoAdmin) return;
   document.getElementById('nome-admin').textContent = `Admin: ${sessaoAdmin.login}`;
@@ -95,6 +96,7 @@ async function editarEspecialidade(id) {
   if (!especialidade) return;
   const nome = window.prompt('Novo nome da especialidade:', especialidade.nome);
   if (nome == null || !nome.trim()) return;
+  if (nome.trim().length > 100) { window.alert('O nome da especialidade pode ter até 100 caracteres.'); return; }
   try {
     await EspecialidadeAPI.atualizar(id, { id: Number(id), nome: nome.trim() });
     await carregarDados();
@@ -111,7 +113,7 @@ function abrirEdicao(tipo, id) {
   document.getElementById('edicao-tipo').value = tipo;
   document.getElementById('edicao-id').value = registro.id;
   document.getElementById('edicao-nome').value = registro.nome || '';
-  document.getElementById('edicao-telefone').value = registro.telefone || '';
+  document.getElementById('edicao-telefone').value = aplicarMascaraTelefone(registro.telefone || '');
   document.getElementById('edicao-identificador').value = tipo === 'MEDICO' ? registro.crm || '' : '';
   document.getElementById('edicao-email').value = tipo === 'PACIENTE' ? registro.email || '' : '';
   document.getElementById('titulo-edicao').textContent = tipo === 'PACIENTE' ? 'Editar paciente' : 'Editar médico';
@@ -132,12 +134,21 @@ async function salvarEdicao(event) {
   const tipo = document.getElementById('edicao-tipo').value;
   const msg = document.getElementById('msg-edicao');
   const nome = document.getElementById('edicao-nome').value.trim();
-  const telefone = document.getElementById('edicao-telefone').value.trim();
+  const telefone = somenteDigitos(document.getElementById('edicao-telefone').value);
+  if (nome.length > 255 || !telefoneValido(telefone)) {
+    msg.textContent = 'Informe um nome com até 255 caracteres e telefone com DDD.';
+    msg.className = 'msg show erro';
+    return;
+  }
   try {
     if (tipo === 'PACIENTE') {
-      await PacienteAPI.atualizar(id, { nome, telefone, email: document.getElementById('edicao-email').value.trim() });
+      const email = document.getElementById('edicao-email').value.trim();
+      if (!document.getElementById('edicao-email').validity.valid || email.length > 255) throw new Error('Informe um e-mail válido com até 255 caracteres.');
+      await PacienteAPI.atualizar(id, { nome, telefone, email });
     } else {
-      await MedicoAPI.atualizar(id, { nome, telefone, crm: document.getElementById('edicao-identificador').value.trim() });
+      const crm = document.getElementById('edicao-identificador').value.trim();
+      if (!crm || crm.length > 50) throw new Error('Informe um CRM com até 50 caracteres.');
+      await MedicoAPI.atualizar(id, { nome, telefone, crm });
     }
     fecharEdicao();
     await carregarDados();

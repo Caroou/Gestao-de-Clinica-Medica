@@ -60,16 +60,17 @@
       <div class="modal-body">
         <input id="edicao-id" type="hidden">
         <input id="edicao-tipo" type="hidden">
-        <div class="form-group"><label for="edicao-nome">Nome</label><input id="edicao-nome" required></div>
-        <div class="form-group" id="grupo-edicao-identificador"><label id="label-edicao-identificador" for="edicao-identificador">Identificador</label><input id="edicao-identificador"></div>
-        <div class="form-group"><label for="edicao-telefone">Telefone</label><input id="edicao-telefone" required></div>
-        <div class="form-group hidden" id="grupo-edicao-email"><label for="edicao-email">E-mail</label><input id="edicao-email" type="email" required></div>
+        <div class="form-group"><label for="edicao-nome">Nome</label><input id="edicao-nome" maxlength="255" required></div>
+        <div class="form-group" id="grupo-edicao-identificador"><label id="label-edicao-identificador" for="edicao-identificador">Identificador</label><input id="edicao-identificador" maxlength="50"></div>
+        <div class="form-group"><label for="edicao-telefone">Telefone</label><input id="edicao-telefone" data-mascara="telefone" inputmode="tel" maxlength="15" required></div>
+        <div class="form-group hidden" id="grupo-edicao-email"><label for="edicao-email">E-mail</label><input id="edicao-email" type="email" maxlength="255" required></div>
         <div id="msg-edicao" class="msg"></div>
       </div>
       <div class="modal-footer"><button class="btn btn-secondary" type="button" onclick="fecharEdicao()">Cancelar</button><button class="btn btn-primary" type="submit">Salvar alterações</button></div>
     </form>
   </div>
 
+  <script src="../js/mascaras.js"></script>
   <script src="../js/api.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/dashboard-admin.js"></script>

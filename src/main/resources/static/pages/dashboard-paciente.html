@@ -6,7 +6,7 @@
   <title>Área do Paciente – Clínica Médica</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
+<body class="pagina-paciente">
 
   <!-- Navbar -->
   <nav class="navbar">
@@ -31,8 +31,8 @@
 
     <!-- Lista de consultas -->
     <div class="table-card">
-      <div class="table-header">Minhas Consultas Agendadas</div>
-      <div style="padding:1.25rem" id="lista-consultas">
+      <div class="table-header">Minhas Consultas</div>
+      <div class="lista-consultas" id="lista-consultas">
         <p style="color:#64748b">Carregando...</p>
       </div>
     </div>
@@ -64,18 +64,38 @@
           <label>Horários Disponíveis</label>
           <select id="select-horario"></select>
           <small style="color:#94a3b8;margin-top:.25rem;display:block">
-            Os horários são definidos pelo médico. Reservas desta demonstração ficam salvas neste navegador.
+            Os horários são definidos pelo médico. No modo de demonstração, os dados ficam salvos neste navegador.
           </small>
         </div>
         <div class="form-group">
           <label>Motivo da Consulta (opcional)</label>
-          <input type="text" id="obs-consulta" placeholder="Ex: dor de cabeça persistente">
+          <input type="text" id="obs-consulta" maxlength="1000" placeholder="Ex: dor de cabeça persistente">
         </div>
         <div id="msg-agendamento" class="msg"></div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="fecharModalAgendamento()">Cancelar</button>
         <button class="btn btn-primary" onclick="confirmarAgendamento()">Confirmar Agendamento</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Prontuário do paciente -->
+  <div class="modal-overlay hidden" id="modal-prontuario-paciente">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Meu prontuário</h3>
+        <button class="btn-close" onclick="fecharProntuarioPaciente()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:#64748b;margin-bottom:1rem">Atendimento registrado em <strong id="prontuario-data"></strong></p>
+        <div class="form-group"><label>Diagnóstico</label><p id="prontuario-diagnostico"></p></div>
+        <div class="form-group"><label>Prescrição</label><p id="prontuario-prescricao"></p></div>
+        <div class="form-group"><label>Observações clínicas</label><p id="prontuario-observacoes"></p></div>
+        <div id="msg-prontuario-paciente" class="msg"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="fecharProntuarioPaciente()">Fechar</button>
       </div>
     </div>
   </div>

@@ -7,6 +7,7 @@ import com.clinicamedica.main.model.Usuario;
 import com.clinicamedica.main.repository.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.clinicamedica.main.validation.ValidacaoDados;
 
 @Service
 public class UsuarioService {
@@ -20,14 +21,20 @@ public class UsuarioService {
     }
 
     public UsuarioRetornoDTO cadastrarUsuario(UsuarioCadastroDTO dados) {
+        if (dados == null) throw new IllegalArgumentException("Dados da conta são obrigatórios.");
         if (dados.perfilUsuario() != PerfilUsuario.PACIENTE
                 && dados.perfilUsuario() != PerfilUsuario.MEDICO) {
             throw new IllegalArgumentException("Este cadastro aceita apenas os perfis Paciente e Médico.");
         }
+        String login = ValidacaoDados.textoObrigatorio(dados.login(), "o login", 100);
+        if (repository.existsByLogin(login)) throw new IllegalArgumentException("Este login já está em uso.");
+        if (dados.senha() == null || dados.senha().length() < 8 || ValidacaoDados.bytesUtf8(dados.senha()) > 72) {
+            throw new IllegalArgumentException("A senha deve ter no mínimo 8 caracteres e até 72 bytes.");
+        }
 
         // 1. Transforma o DTO que chegou em uma Entidade real
         Usuario usuario = new Usuario();
-        usuario.setLogin(dados.login());
+        usuario.setLogin(login);
         usuario.setPerfilUsuario(dados.perfilUsuario());
         usuario.setAtivo(true);
 
@@ -42,6 +49,9 @@ public class UsuarioService {
     }
 
     public UsuarioRetornoDTO fazerLogin(String login, String senhaDigitada) {
+        if (login == null || login.isBlank() || senhaDigitada == null || senhaDigitada.isEmpty()) {
+            throw new IllegalArgumentException("Informe login e senha.");
+        }
         Usuario usuario = repository.findByLoginAndAtivoTrue(login)
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado ou inativo."));
 

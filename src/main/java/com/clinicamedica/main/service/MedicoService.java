@@ -11,6 +11,7 @@ import com.clinicamedica.main.repository.EspecialidadeRepository;
 import com.clinicamedica.main.repository.MedicoRepository;
 import com.clinicamedica.main.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
+import com.clinicamedica.main.validation.ValidacaoDados;
 
 import java.util.List;
 
@@ -33,19 +34,16 @@ public class MedicoService {
 
     @org.springframework.transaction.annotation.Transactional
     public MedicoRetornoDTO cadastrarMedico(MedicoCadastroDTO dados, Integer usuarioAutenticadoId) {
+        if (dados == null) throw new IllegalArgumentException("Dados do médico são obrigatórios.");
         if (dados.usuarioId() == null || !dados.usuarioId().equals(usuarioAutenticadoId)) {
             throw new IllegalArgumentException("O médico só pode concluir o cadastro da própria conta.");
         }
 
 
         // 1. Validação do CRM
-        if (dados.crm() == null || dados.crm().isBlank()) {
-            throw new IllegalArgumentException(
-                    "O CRM é obrigatório."
-            );
-        }
-
-        String crm = dados.crm().trim();
+        String nome = ValidacaoDados.textoObrigatorio(dados.nome(), "o nome", 255);
+        String telefone = ValidacaoDados.telefone(dados.telefone());
+        String crm = ValidacaoDados.textoObrigatorio(dados.crm(), "o CRM", 50);
 
         if (medicoRepository.existsByCrm(crm)) {
             throw new IllegalArgumentException(
@@ -67,30 +65,22 @@ public class MedicoService {
         Medico medico = new Medico();
 
         medico.setUsuario(usuario);
-        medico.setNome(dados.nome());
+        medico.setNome(nome);
         medico.setCrm(crm);
-        medico.setTelefone(dados.telefone());
+        medico.setTelefone(telefone);
 
         // 4. Busca e adiciona as especialidades
-        System.out.println("DEBUG - IDs recebidos no JSON: " + dados.especialidadeIds());
-
-        if (dados.especialidadeIds() != null && !dados.especialidadeIds().isEmpty()) {
-
-            for (Integer especialidadeId : dados.especialidadeIds()) {
-
-                Especialidade especialidade =
-                        especialidadeRepository.findById(especialidadeId)
-                                .orElseThrow(() ->
-                                        new IllegalArgumentException(
-                                                "Especialidade não encontrada: "
-                                                        + especialidadeId
-                                        ));
-
-                System.out.println("DEBUG - Vinculando especialidade: " + especialidade.getNome());
-                medico.getEspecialidades().add(especialidade);
-            }
-        } else {
-            System.out.println("DEBUG - A lista de especialidadeIds veio NULA ou VAZIA do Postman!");
+        if (dados.especialidadeIds() == null || dados.especialidadeIds().isEmpty()) {
+            throw new IllegalArgumentException("Selecione ao menos uma especialidade.");
+        }
+        if (dados.especialidadeIds().stream().anyMatch(id -> id == null || id <= 0)
+                || dados.especialidadeIds().stream().distinct().count() != dados.especialidadeIds().size()) {
+            throw new IllegalArgumentException("A lista de especialidades contém identificadores inválidos ou repetidos.");
+        }
+        for (Integer especialidadeId : dados.especialidadeIds()) {
+            Especialidade especialidade = especialidadeRepository.findById(especialidadeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Especialidade não encontrada: " + especialidadeId));
+            medico.getEspecialidades().add(especialidade);
         }
 
         // 5. Salva
@@ -100,6 +90,7 @@ public class MedicoService {
         return new MedicoRetornoDTO(salvo);
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<MedicoRetornoDTO> listarTodos() {
 
         return medicoRepository.findAll()
@@ -110,25 +101,24 @@ public class MedicoService {
 
     @org.springframework.transaction.annotation.Transactional
     public MedicoRetornoDTO atualizarDadosAdministrativos(Integer id, MedicoAdminAtualizacaoDTO dados) {
-        if (dados.nome() == null || dados.nome().isBlank()
-                || dados.crm() == null || dados.crm().isBlank()
-                || dados.telefone() == null || dados.telefone().isBlank()) {
-            throw new IllegalArgumentException("Informe nome, CRM e telefone.");
-        }
+        if (dados == null) throw new IllegalArgumentException("Dados do médico são obrigatórios.");
 
         Medico medico = medicoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Médico não encontrado."));
-        String crm = dados.crm().trim();
+        String nome = ValidacaoDados.textoObrigatorio(dados.nome(), "o nome", 255);
+        String crm = ValidacaoDados.textoObrigatorio(dados.crm(), "o CRM", 50);
+        String telefone = ValidacaoDados.telefone(dados.telefone());
         if (!crm.equalsIgnoreCase(medico.getCrm()) && medicoRepository.existsByCrmAndIdNot(crm, id)) {
             throw new IllegalArgumentException("Este CRM já está sendo usado por outro médico.");
         }
 
-        medico.setNome(dados.nome().trim());
+        medico.setNome(nome);
         medico.setCrm(crm);
-        medico.setTelefone(dados.telefone().trim());
+        medico.setTelefone(telefone);
         return new MedicoRetornoDTO(medicoRepository.save(medico));
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public MedicoRetornoDTO buscarPorId(Integer id) {
 
         Medico medico = medicoRepository.findById(id)

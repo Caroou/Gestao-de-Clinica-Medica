@@ -52,6 +52,32 @@ const MedicoAPI = {
   atualizar: (id, body) => apiFetch('PUT', `/api/medicos/${id}`, body),
 };
 
+// --- Agenda ---
+const AgendaAPI = {
+  disponiveis: (medicoId) => apiFetch('GET', `/api/agendas/disponiveis${medicoId ? `?medicoId=${encodeURIComponent(medicoId)}` : ''}`),
+  minhas: () => apiFetch('GET', '/api/agendas/minhas'),
+  cadastrar: (body) => apiFetch('POST', '/api/agendas', body),
+  excluir: (id) => apiFetch('DELETE', `/api/agendas/${id}`),
+};
+
+// --- Consultas ---
+const ConsultaAPI = {
+  agendar: (body) => apiFetch('POST', '/api/consultas', body),
+  minhas: () => apiFetch('GET', '/api/consultas/minhas'),
+  doMedico: () => apiFetch('GET', '/api/consultas/medico/minhas'),
+  cancelar: (id) => apiFetch('PUT', `/api/consultas/${id}/cancelar`),
+  cancelarPeloMedico: (id) => apiFetch('PUT', `/api/consultas/${id}/cancelar-medico`),
+  marcarNaoCompareceu: (id) => apiFetch('PUT', `/api/consultas/${id}/nao-compareceu`),
+  reagendar: (id, body) => apiFetch('PUT', `/api/consultas/${id}/reagendar`, body),
+};
+
+// --- Atendimento ---
+const AtendimentoAPI = {
+  registrar: (body) => apiFetch('POST', '/api/atendimentos', body),
+  meus: () => apiFetch('GET', '/api/atendimentos/meus'),
+  doMedico: () => apiFetch('GET', '/api/atendimentos/medico/meus'),
+};
+
 // --- Especialidade ---
 const EspecialidadeAPI = {
   listar: () => apiFetch('GET', '/api/especialidades'),
