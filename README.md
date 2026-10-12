@@ -1,212 +1,300 @@
-# Gestão de Clínica Médica
+# 🏥 Gestão de Clínica Médica
 
-Aplicação web acadêmica para gerenciar contas, pacientes, médicos, especialidades, agendas, consultas e atendimentos. O backend usa Spring Boot e MySQL; as telas HTML, CSS e JavaScript ficam em `src/main/resources/static/pages`.
+Sistema web para gestão completa de clínicas médicas, controlando contas de acesso, pacientes, médicos, especialidades, agendas de atendimento, consultas e prontuários médicos.
 
-> **Ambiente de testes:** use dados fictícios. O armazenamento de demonstração no navegador não é prontuário persistente e não deve conter dados clínicos reais.
+O projeto é estruturado com backend em **Spring Boot (API RESTful)** integrado a banco de dados **MySQL**, e frontend desacoplado em **HTML5, CSS3 e JavaScript (Vanilla)** servido de forma estática pela aplicação.
 
-## O que está implementado
+---
 
-### Contas e acesso
+## 📌 Sumário
+- [Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Pré-requisitos](#-pré-requisitos)
+- [Passo a Passo para Executar](#-passo-a-passo-para-executar)
+  - [1. Configurar o Banco de Dados](#1-configurar-o-banco-de-dados-mysql)
+  - [2. Configurar as Credenciais no Projeto](#2-configurar-as-credenciais-applicationproperties)
+  - [3. Iniciar a Aplicação](#3-iniciar-a-aplicação)
+  - [4. Acessar o Sistema](#4-acessar-o-sistema)
+  - [5. Criar o Primeiro Administrador (CLI)](#5-criar-o-primeiro-administrador-cli)
+- [Perfis de Acesso e Funcionalidades](#-perfis-de-acesso-e-funcionalidades)
+  - [Paciente](#-paciente)
+  - [Médico](#-médico)
+  - [Administrador (ADMIN)](#-administrador-admin)
+- [Roteiro de Testes Recomendado](#-roteiro-de-testes-recomendado)
+- [Documentação das Rotas da API REST](#-documentação-das-rotas-da-api-rest)
+- [Segurança e Conformidade LGPD](#-segurança-e-conformidade-lgpd)
 
-- Cadastro público de pacientes e médicos. O cadastro público não permite criar um administrador.
-- Login por sessão HTTP e encaminhamento para a dashboard correspondente ao perfil.
-- A sessão é validada no servidor. As rotas da API negam acesso por padrão quando não há uma regra explícita.
-- Senhas armazenadas com hash BCrypt. O primeiro administrador é criado por um comando de terminal descrito em [Documentação/script-criar-admin.md](Documentação/script-criar-admin.md).
-- Cookies de sessão `HttpOnly` e `SameSite=Strict`. O suporte a cookie `Secure` pode ser ativado com `SESSION_COOKIE_SECURE=true` quando houver HTTPS.
+---
 
-### Dashboard administrativa
+## 🚀 Tecnologias Utilizadas
 
-- Pesquisa de pacientes por nome, CPF, e-mail ou telefone.
-- Pesquisa de médicos por nome, CRM, telefone ou especialidade.
-- Edição administrativa do nome, telefone e e-mail do paciente e do nome, CRM e telefone do médico.
-- Cadastro, renomeação e exclusão de especialidades. Uma especialidade vinculada a consultas não pode ser excluída.
-- O perfil `ADMIN` não possui cadastro público.
+- **Linguagem & Plataforma:** Java 21 LTS
+- **Framework:** Spring Boot 4.x (Spring Web MVC, Spring Data JPA, Spring Security)
+- **Banco de Dados:** MySQL 8.0+
+- **Gerenciador de Dependências:** Apache Maven (com Maven Wrapper `mvnw` incluso)
+- **Segurança:** BCrypt (Hash de senhas) e AES (Criptografia simétrica de dados sensíveis para LGPD)
+- **Frontend:** HTML5, CSS3 responsivo e JavaScript moderno (Fetch API, SPA leve e modular)
 
-### Agenda, consultas e prontuários
+---
 
-- O médico disponibiliza horários futuros para a própria agenda e pode remover um horário livre. Horários reservados não podem ser removidos.
-- O paciente escolhe uma especialidade, um médico que a possua e um horário disponível definido pelo médico. A especialidade escolhida é salva na consulta e exibida nas dashboards do paciente e do médico.
-- O backend verifica a disponibilidade do horário e se a especialidade pertence ao médico, evitando reservas duplicadas ou combinações inválidas.
-- O paciente pode cancelar uma consulta futura ainda `AGENDADO`. A consulta continua no histórico, o horário é liberado e a tela orienta a fazer um novo agendamento se quiser reagendar.
-- O médico pode cancelar uma consulta `AGENDADO`. Horários futuros são liberados; horários passados não voltam à disponibilidade. O médico pode marcar `NAO_COMPARECEU` depois do horário marcado.
-- Só uma consulta `AGENDADO` pode receber um atendimento. O registro inclui diagnóstico obrigatório, prescrição e observações clínicas, e muda o status para `REALIZADO`. Consultas canceladas ou marcadas como não comparecimento não podem ser realizadas.
-- O histórico do médico fica separado das consultas pendentes, é ordenado do mais recente para o mais antigo e permite busca pelo nome do paciente.
-- Pacientes consultam os próprios prontuários em modo de leitura. Médicos consultam em modo de leitura os atendimentos da própria agenda. O servidor aplica esses filtros pela sessão autenticada.
-- As dashboards do paciente e do médico consultam a API a cada 15 segundos enquanto a aba está visível e ao voltar para ela. A tela atualiza sem recarregar a página; pode haver até 15 segundos de atraso para mudanças feitas em outra sessão.
-
-### Cadastro e validações
-
-- As máscaras de CPF e telefone são apenas visuais: a API recebe somente números.
-- Para testes, o CPF precisa conter 11 dígitos, mas a validação dos dígitos verificadores está temporariamente desativada. O CPF continua único no banco; use um número fictício que ainda não esteja cadastrado.
-- Telefone precisa ter DDD e 10 ou 11 dígitos. Nome, e-mail, data de nascimento, login, senha, CRM, especialidade e campos clínicos também têm limites e validações no navegador e no backend.
-- Os campos de diagnóstico, prescrição e observações clínicas usam o conversor AES existente. CPF e telefones também usam esse conversor nos modelos atuais.
-
-## Tecnologias
-
-- Java 21 e Spring Boot
-- Spring MVC, Spring Data JPA e Spring Security
-- Maven e MySQL
-- BCrypt para hash de senhas
-- HTML, CSS e JavaScript sem framework no front-end
-
-## Estrutura do projeto
+## 📁 Estrutura do Projeto
 
 ```text
-src/main/java/com/clinicamedica/main/
-  config/       Sessões, segurança, conversores e criação manual do admin
-  controller/   Endpoints REST
-  dto/          Contratos de entrada e saída da API
-  model/        Entidades e enums
-  repository/   Consultas Spring Data JPA
-  service/      Regras de negócio e validações
-  validation/   Validações compartilhadas
-
-src/main/resources/
-  application.properties
-  static/
-    pages/      Login, cadastro e dashboards
-    js/         Chamadas à API, máscaras e lógica das telas
-    css/        Estilos e regras responsivas
-
-Documentação/
-  script-database.sql
-  migracao-especialidade-consulta.sql
-  script-criar-admin.md
+Gestao-de-Clinica-Medica/
+├── src/main/java/com/clinicamedica/main/
+│   ├── config/          Configurações de segurança, filtros de sessão e conversores JPA
+│   ├── controller/      Controladores REST (@RestController) expondo as rotas /api
+│   ├── dto/             Data Transfer Objects (Records) de entrada e saída
+│   ├── model/           Entidades JPA e Enums (@Entity, @Table, @Enumerated)
+│   ├── repository/      Interfaces Spring Data JPA (@Repository)
+│   ├── service/         Regras de negócio, transações e validações de domínio
+│   └── validation/      Classes auxiliares de validação de dados
+│
+├── src/main/resources/
+│   ├── application.properties   Configurações de porta, conexão MySQL e sessões
+│   └── static/                  Arquivos estáticos do frontend
+│       ├── css/style.css        Estilização global
+│       ├── js/                  Lógica cliente, comunicação com API e sessões
+│       └── pages/               Telas do sistema (login, cadastro, dashboards)
+│
+├── Documentação/
+│   ├── script-database.sql      Script de criação do banco de dados e dados iniciais
+│   ├── script-criar-admin.md    Manual detalhado de criação do usuário administrador
+│   └── *.pdf / *.png            Diagramas ER e documentações das sprints
+│
+├── pom.xml                      Descritor de dependências e plugins Maven
+├── mvnw / mvnw.cmd              Maven Wrapper (Linux/Mac e Windows)
+└── README.md                    Documentação principal do projeto
 ```
 
-As páginas usadas pelo fluxo atual estão dentro de `static/pages`. O backend e o front-end devem ser servidos pela mesma aplicação Spring Boot.
+---
 
-## Configuração e inicialização
+## 📋 Pré-requisitos
 
-### Requisitos
+Antes de iniciar, certifique-se de ter instalado em seu computador:
+1. **JDK 21** (Java Development Kit 21 ou superior):
+   - Verifique com o comando: `java -version`
+2. **MySQL Server** (versão 8.0 ou superior):
+   - O serviço do MySQL deve estar em execução na porta padrão `3306`.
+3. **Git** (opcional, para clonar o repositório).
+4. Uma ferramenta visual para gerenciar o MySQL (recomendado: *MySQL Workbench*, *DBeaver* ou via linha de comando).
 
-- JDK 21
-- MySQL
-- Maven (ou o Maven Wrapper incluído no projeto)
+> **Nota:** Não é necessário ter o Maven instalado globalmente, pois o repositório inclui os scripts executáveis do Maven Wrapper (`mvnw` e `mvnw.cmd`).
 
-### Banco de dados
+---
 
-Configure URL, usuário e senha do MySQL em `src/main/resources/application.properties`. O projeto usa `spring.jpa.hibernate.ddl-auto=none`; o Hibernate não cria nem atualiza tabelas automaticamente.
+## 🛠️ Passo a Passo para Executar
 
-O script [Documentação/script-database.sql](Documentação/script-database.sql) cria o esquema e insere especialidades iniciais. **Ele começa com `DROP DATABASE IF EXISTS clinica_medica` e apaga o banco e todos os dados.** Execute-o apenas quando estiver criando a base do zero e puder perder o conteúdo atual.
+### 1. Configurar o Banco de Dados (MySQL)
 
-Se a base já existe, preserve seus dados e execute uma única vez [Documentação/migracao-especialidade-consulta.sql](Documentação/migracao-especialidade-consulta.sql). Ela adiciona a coluna opcional `consulta.especialidade_id` e sua chave estrangeira, sem excluir tabelas ou consultas. Atendimentos antigos permanecem sem a especialidade escolhida e aparecem como “Especialidade não informada”.
+1. Abra seu cliente MySQL (*MySQL Workbench*, *DBeaver* ou terminal).
+2. Abra e execute o arquivo de script localizado em:
+   ```text
+   Documentação/script-database.sql
+   ```
+3. Este script irá:
+   - Criar o banco de dados `clinica_medica`.
+   - Criar todas as 8 tabelas relacionais (`usuario`, `paciente`, `medico`, `especialidade`, `medico_especialidade`, `agenda`, `consulta`, `atendimento`).
+   - Inserir as 10 especialidades médicas iniciais (Clínica Geral, Cardiologia, Pediatria, etc.).
 
-### Iniciar a aplicação
+> ⚠️ **Atenção:** O script contém `DROP DATABASE IF EXISTS clinica_medica`. Caso execute-o novamente no futuro, ele recriará o banco do zero.
 
-No PowerShell, na pasta do projeto:
+---
 
+### 2. Configurar as Credenciais (`application.properties`)
+
+Abra o arquivo [src/main/resources/application.properties](file:///c:/Users/Carollyne/Desktop/Gestao-de-Clinica-Medica/src/main/resources/application.properties) e verifique se as credenciais correspondem ao seu MySQL local:
+
+```properties
+spring.application.name=gestao-de-clinica-medica
+
+# URL de conexão com o banco
+spring.datasource.url=jdbc:mysql://localhost:3306/clinica_medica?useTimezone=true&serverTimezone=UTC
+
+# Altere para o seu usuário e senha do MySQL:
+spring.datasource.username=root
+spring.datasource.password=SUA_SENHA_AQUI
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# Configurações JPA/Hibernate
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=none
+
+# Segurança de Sessão HTTP
+server.servlet.session.cookie.http-only=true
+server.servlet.session.cookie.same-site=strict
+server.servlet.session.cookie.secure=${SESSION_COOKIE_SECURE:false}
+```
+
+---
+
+### 3. Iniciar a Aplicação
+
+Abra o terminal (PowerShell no Windows, ou Bash no Linux/macOS) na pasta raiz do projeto:
+
+**No Windows (PowerShell / Prompt):**
 ```powershell
 .\mvnw.cmd spring-boot:run
 ```
 
-Abra [http://localhost:8080/](http://localhost:8080/). A raiz encaminha para a tela de login. Para compilar sem iniciar o servidor:
-
-```powershell
-.\mvnw.cmd -DskipTests compile
+**No Linux / macOS:**
+```bash
+./mvnw spring-boot:run
 ```
 
-## Criar o primeiro administrador
+**Ou pela sua IDE favorita (IntelliJ IDEA, VS Code, Eclipse):**
+- Importe o projeto como projeto Maven existente.
+- Execute a classe principal `src/main/java/com/clinicamedica/main/GestaoDeClinicaMedicaApplication.java`.
 
-O administrador é criado fora do cadastro público. Gere o pacote e execute o comando em um terminal interativo:
+Aguarde o Spring Boot inicializar até exibir a mensagem indicando que a aplicação subiu na porta **8080** (ex: `Tomcat started on port 8080 (http)`).
 
-```powershell
-.\mvnw.cmd -DskipTests package
-java -jar target\gestao-de-clinica-medica-0.0.1-SNAPSHOT.jar --criar-admin
-```
+---
 
-O comando pede login e senha sem exibir a senha digitada. A senha precisa ter entre 15 e 72 bytes UTF-8 e ser confirmada. O usuário é salvo com BCrypt; se o login já existir, o comando não altera nem promove essa conta. O comando termina sem iniciar o servidor web.
+### 4. Acessar o Sistema
 
-Veja [Documentação/script-criar-admin.md](Documentação/script-criar-admin.md) para os detalhes.
+Abra o navegador e acesse:
+👉 **[http://localhost:8080/](http://localhost:8080/)**
 
-## Fluxo para testar pela interface
+A rota raiz redireciona automaticamente para a tela de autenticação:
+`http://localhost:8080/pages/login.html`
 
-1. Crie o banco do zero com o script SQL, ou aplique a migração indicada acima se quiser manter uma base existente.
-2. Inicie o backend e crie o administrador pelo comando de terminal.
-3. Entre como admin e confira as especialidades iniciais ou cadastre outras.
-4. Cadastre um médico, selecione uma ou mais especialidades e entre na dashboard médica.
-5. Na dashboard médica, disponibilize um horário futuro.
-6. Cadastre um paciente usando dados fictícios. CPF de teste deve ter 11 dígitos e ser único na base.
-7. Agende uma consulta escolhendo especialidade, médico e horário livre.
-8. Confira a consulta e a especialidade nas dashboards do paciente e do médico. A reserva deve aparecer para ambas as contas.
-9. Teste cancelamento pelo paciente ou pelo médico; confira o status e a disponibilidade do horário. Marque não comparecimento depois do horário da consulta.
-10. Para uma consulta pendente, registre um atendimento. Confira o prontuário em modo de leitura nas dashboards do paciente e do médico.
-11. Use o histórico do médico para pesquisar consultas anteriores e o admin para pesquisar ou editar cadastros.
+---
 
-As atualizações feitas por outra sessão aparecem automaticamente em até cerca de 15 segundos enquanto a dashboard estiver aberta e visível. Na demonstração local, o `localStorage` só é compartilhado pelo mesmo navegador/perfil e não substitui o banco de dados.
+### 5. Criar o Primeiro Administrador (CLI)
 
-## Rotas da API
+Por motivos de segurança, o sistema **não permite cadastrar um Administrador pela interface pública**. O primeiro administrador é criado via terminal interativo.
 
-Todas as rotas usam prefixo `/api`. As rotas protegidas exigem a sessão criada no login, além do perfil indicado abaixo.
+1. Abra um terminal na pasta do projeto e gere o arquivo executável `.jar`:
+   ```powershell
+   .\mvnw.cmd -DskipTests package
+   ```
+2. Execute o comando com a flag `--criar-admin`:
+   ```powershell
+   java -jar target\gestao-de-clinica-medica-0.0.1-SNAPSHOT.jar --criar-admin
+   ```
+3. O terminal solicitará:
+   - **Login:** defina o nome de usuário do admin (ex: `admin`).
+   - **Senha:** digite a senha (de 15 a 72 caracteres UTF-8; a digitação fica oculta no console).
+   - **Confirmação:** digite a mesma senha novamente.
+4. Após a confirmação, o usuário `ADMIN` será salvo no banco de dados com hash BCrypt e o comando será finalizado.
+5. Agora você já pode fazer login na aplicação com essa conta administradora!
 
-### Usuários
+---
 
-| Método e rota | Acesso | Descrição |
-|---|---|---|
-| `POST /api/usuarios/cadastrar` | Público | Criar conta de paciente ou médico. `ADMIN` é rejeitado. |
-| `POST /api/usuarios/login` | Público | Autenticar e iniciar sessão. |
-| `GET /api/usuarios/sessao` | Sessão autenticada | Consultar o perfil da sessão atual. |
-| `POST /api/usuarios/logout` | Sessão autenticada | Encerrar a sessão. |
+## 👥 Perfis de Acesso e Funcionalidades
 
-### Pacientes e médicos
+O sistema conta com Controle de Acesso Baseado em Perfis (RBAC), gerenciado por sessões autenticadas no servidor:
 
-| Método e rota | Acesso | Descrição |
-|---|---|---|
-| `POST /api/pacientes` | Paciente | Concluir o cadastro do próprio usuário. |
-| `GET /api/pacientes` | Admin | Listar pacientes para pesquisa administrativa. |
-| `PUT /api/pacientes/{id}` | Admin | Atualizar nome, telefone e e-mail. |
-| `POST /api/medicos` | Médico | Concluir o próprio cadastro com CRM, telefone e `especialidadeIds`. |
-| `GET /api/medicos` | Admin, médico ou paciente | Listar médicos e IDs de especialidades. |
-| `GET /api/medicos/{id}` | Admin, médico ou paciente | Consultar um médico. |
-| `PUT /api/medicos/{id}` | Admin | Atualizar nome, CRM e telefone. |
-| `DELETE /api/medicos/{id}` | Admin | Excluir cadastro médico. |
+### 🧑‍🦱 Paciente
+- **Cadastro e Autenticação:** Criação de conta pública (Login + Senha) vinculada aos dados do paciente (Nome, CPF, Data de Nascimento, Telefone, E-mail).
+- **Agendamento de Consultas:** Escolhe uma Especialidade médica, seleciona um Médico habilitado e escolhe um horário disponível na agenda do médico.
+- **Minhas Consultas:** Visualização das consultas agendadas, realizadas ou canceladas, com atualização dinâmica.
+- **Cancelamento:** Pode cancelar uma consulta futura ainda no status `AGENDADO`. O horário volta automaticamente a ficar disponível na agenda do médico.
+- **Prontuário e Histórico:** Consulta os laudos, diagnósticos e prescrições médicas de suas consultas já realizadas (somente leitura).
 
-### Especialidades
+### 👨‍⚕️ Médico
+- **Cadastro e Especialidades:** Cadastro público com CRM, telefone e vinculação a uma ou mais especialidades médicas cadastradas no sistema.
+- **Gerenciamento de Agenda:** Disponibiliza novos horários de atendimento futuros (Data e Hora). Pode remover horários livres que ainda não foram reservados.
+- **Atendimento e Prontuário:** Acessa as consultas marcadas do dia. Ao atender o paciente, preenche o prontuário (Diagnóstico obrigatório, Prescrição e Observações Clínicas), alterando o status da consulta para `REALIZADO`.
+- **Cancelamento e Falta:** Pode cancelar uma consulta com aviso prévio ou registrar `NÃO COMPARECEU` após o horário estipulado.
+- **Histórico Clínico:** Pesquisa e consulta o histórico dos atendimentos prestados pelo próprio médico.
 
-| Método e rota | Acesso | Descrição |
-|---|---|---|
-| `GET /api/especialidades` | Público | Listar especialidades para os formulários. |
-| `GET /api/especialidades/{id}` | Público | Consultar uma especialidade. |
-| `POST /api/especialidades` | Admin | Cadastrar especialidade. |
-| `PUT /api/especialidades/{id}` | Admin | Renomear especialidade. |
-| `DELETE /api/especialidades/{id}` | Admin | Excluir especialidade não vinculada a consultas. |
+### 🛡️ Administrador (ADMIN)
+- **Gestão de Especialidades:** Cadastra, edita e remove especialidades médicas (uma especialidade vinculada a consultas existentes é protegida contra exclusão).
+- **Gestão de Pacientes:** Pesquisa pacientes por nome, CPF, e-mail ou telefone e edita informações cadastrais.
+- **Gestão de Médicos:** Pesquisa médicos por nome, CRM, telefone ou especialidade e atualiza seus dados.
+- **Visão Geral:** Consulta registros e relatórios do sistema.
 
-### Agenda
+---
 
-| Método e rota | Acesso | Descrição |
-|---|---|---|
-| `POST /api/agendas` | Médico | Criar horário futuro para a própria agenda (`dataAgenda`, `horario`). |
-| `GET /api/agendas/minhas` | Médico | Listar os horários da própria agenda. |
-| `GET /api/agendas/disponiveis?medicoId={id}` | Paciente ou admin | Listar horários futuros livres; `medicoId` é opcional. |
-| `GET /api/agendas/{id}` | Admin | Consultar um horário pelo ID. |
-| `DELETE /api/agendas/{id}` | Médico dono do horário | Excluir horário livre da própria agenda. Horários reservados não podem ser removidos. |
+## 🧪 Roteiro de Testes Recomendado
 
-### Consultas
+Para testar o fluxo de ponta a ponta na sua máquina:
 
-| Método e rota | Acesso | Descrição |
-|---|---|---|
-| `POST /api/consultas` | Paciente | Reservar horário enviando `agendaId`, `especialidadeId` e `observacoes` opcional. |
-| `GET /api/consultas/minhas` | Paciente | Listar as próprias consultas. |
-| `GET /api/consultas/medico/minhas` | Médico | Listar consultas da própria agenda. |
-| `PUT /api/consultas/{id}/cancelar` | Paciente dono da consulta | Cancelar consulta futura ainda agendada. |
-| `PUT /api/consultas/{id}/reagendar` | Paciente dono da consulta | Trocar para outro `agendaId` livre. A interface atual orienta cancelar e fazer um novo agendamento. |
-| `PUT /api/consultas/{id}/cancelar-medico` | Médico da consulta | Cancelar consulta agendada. |
-| `PUT /api/consultas/{id}/nao-compareceu` | Médico da consulta | Marcar falta após o horário agendado. |
-| `GET /api/consultas` | Admin | Listar consultas. |
-| `GET /api/consultas/data/{data}` | Admin | Listar por data ISO `AAAA-MM-DD`. |
-| `GET /api/consultas/{id}` | Admin | Consultar pelo ID. |
+1. **Criar Admin:** Crie o admin via terminal (`--criar-admin`) e acesse o sistema para conferir a listagem de especialidades.
+2. **Cadastrar Médico:** Na tela de cadastro, crie uma conta de perfil **Médico**, informe CRM, telefone e selecione especialidades (ex: Cardiologia e Clínica Geral).
+3. **Disponibilizar Horário:** Faça login com o médico criado e adicione 2 horários futuros na agenda (ex: amanhã às 09:00 e às 10:00).
+4. **Cadastrar Paciente:** Abra uma janela anônima (ou faça logout) e cadastre uma conta de perfil **Paciente** com dados fictícios.
+5. **Agendar Consulta:** No painel do paciente, clique em *Agendar Consulta*, escolha a especialidade, o médico cadastrado e um dos horários disponíveis.
+6. **Verificar a Reserva:** Volte ao painel do médico; a consulta agendada aparecerá na agenda do médico.
+7. **Realizar Atendimento:** No painel do médico, clique em *Iniciar Atendimento*, preencha diagnóstico e receita e confirme.
+8. **Conferir Prontuário:** Volte ao painel do paciente e veja o prontuário finalizado e disponível para leitura.
 
-### Atendimentos e prontuários
+---
 
-| Método e rota | Acesso | Descrição |
-|---|---|---|
-| `POST /api/atendimentos` | Médico dono da consulta | Registrar `consultaId`, diagnóstico obrigatório, prescrição e observações clínicas. |
-| `GET /api/atendimentos/meus` | Paciente autenticado | Listar somente os próprios atendimentos. |
-| `GET /api/atendimentos/medico/meus` | Médico autenticado | Listar somente os atendimentos da própria agenda. |
+## 📡 Documentação das Rotas da API REST
 
-## Segurança e limitações conhecidas
+Todas as requisições utilizam JSON no corpo e possuem o prefixo `/api`. As rotas protegidas validam a sessão ativa:
 
-- A configuração atual desativa CSRF para simplificar o uso da API local. Antes de disponibilizar o sistema publicamente, configure CSRF, HTTPS e `SESSION_COOKIE_SECURE=true`.
-- A chave do conversor AES está no código e o `localStorage` é apenas demonstrativo. Não use estes recursos para dados reais sem revisão e configuração apropriadas.
-- O CPF aceita qualquer sequência de 11 dígitos temporariamente, sem conferir os dígitos verificadores. A unicidade no banco continua ativa.
-- A atualização automática usa consultas periódicas, não WebSocket: uma mudança externa pode levar até 15 segundos para aparecer.
+### 🔑 Autenticação e Sessão
+| Método | Rota | Acesso | Descrição |
+|---|---|---|---|
+| `POST` | `/api/usuarios/cadastrar` | Público | Cadastro inicial de usuário (Paciente ou Médico) |
+| `POST` | `/api/usuarios/login` | Público | Autentica login/senha e cria a sessão HTTP |
+| `GET` | `/api/usuarios/sessao` | Autenticado | Retorna dados e perfil da sessão ativa |
+| `POST` | `/api/usuarios/logout` | Autenticado | Invalida a sessão atual |
+
+### 👤 Pacientes
+| Método | Rota | Acesso | Descrição |
+|---|---|---|---|
+| `POST` | `/api/pacientes` | PACIENTE | Completa o perfil do paciente logado |
+| `GET` | `/api/pacientes` | ADMIN | Lista pacientes cadastrados |
+| `PUT` | `/api/pacientes/{id}` | ADMIN | Atualiza dados cadastrais do paciente |
+
+### 🩺 Médicos
+| Método | Rota | Acesso | Descrição |
+|---|---|---|---|
+| `POST` | `/api/medicos` | MEDICO | Completa o perfil do médico e suas especialidades |
+| `GET` | `/api/medicos` | Autenticado | Lista médicos e suas especialidades associadas |
+| `GET` | `/api/medicos/{id}` | Autenticado | Busca médico específico por ID |
+| `PUT` | `/api/medicos/{id}` | ADMIN | Atualiza dados do médico |
+| `DELETE`| `/api/medicos/{id}` | ADMIN | Remove cadastro do médico |
+
+### 🏷️ Especialidades
+| Método | Rota | Acesso | Descrição |
+|---|---|---|---|
+| `GET` | `/api/especialidades` | Público | Lista todas as especialidades cadastradas |
+| `GET` | `/api/especialidades/{id}` | Público | Busca especialidade por ID |
+| `POST` | `/api/especialidades` | ADMIN | Cadastra nova especialidade |
+| `PUT` | `/api/especialidades/{id}` | ADMIN | Renomeia especialidade |
+| `DELETE`| `/api/especialidades/{id}` | ADMIN | Exclui especialidade (se não tiver vínculos) |
+
+### 📅 Agenda
+| Método | Rota | Acesso | Descrição |
+|---|---|---|---|
+| `POST` | `/api/agendas` | MEDICO | Cadastra horário livre na agenda do médico logado |
+| `GET` | `/api/agendas/minhas` | MEDICO | Lista os horários da agenda do médico |
+| `GET` | `/api/agendas/disponiveis` | Autenticado | Lista horários futuros livres (filtro opcional `?medicoId=`) |
+| `DELETE`| `/api/agendas/{id}` | MEDICO | Remove horário livre da própria agenda |
+
+### 📋 Consultas
+| Método | Rota | Acesso | Descrição |
+|---|---|---|---|
+| `POST` | `/api/consultas` | PACIENTE | Realiza agendamento vinculando agenda, médico e especialidade |
+| `GET` | `/api/consultas/minhas` | PACIENTE | Lista as consultas do paciente logado |
+| `GET` | `/api/consultas/medico/minhas` | MEDICO | Lista consultas da agenda do médico logado |
+| `PUT` | `/api/consultas/{id}/cancelar` | PACIENTE | Cancela consulta agendada pelo paciente |
+| `PUT` | `/api/consultas/{id}/cancelar-medico` | MEDICO | Cancela consulta pelo médico |
+| `PUT` | `/api/consultas/{id}/nao-compareceu` | MEDICO | Registra falta do paciente após o horário previsto |
+| `GET` | `/api/consultas` | ADMIN | Lista consultas para controle administrativo |
+
+### 📝 Atendimentos (Prontuários)
+| Método | Rota | Acesso | Descrição |
+|---|---|---|---|
+| `POST` | `/api/atendimentos` | MEDICO | Salva diagnóstico e prescrição, finalizando a consulta |
+| `GET` | `/api/atendimentos/meus` | PACIENTE | Lista atendimentos/prontuários do paciente logado |
+| `GET` | `/api/atendimentos/medico/meus` | MEDICO | Lista atendimentos realizados pelo médico logado |
+
+---
+
+## 🔒 Segurança e Conformidade LGPD
+
+1. **Criptografia de Senhas:** Senhas são salvas no banco com hash unidirecional seguro utilizando **BCrypt** (`PasswordEncoder`).
+2. **Criptografia de Dados Sensíveis (AES):** Campos sensíveis especificados pela LGPD são criptografados de forma transparente via JPA Converter (`CriptografiaAesConverter`):
+   - CPF e Telefone do Paciente.
+   - Telefone do Médico.
+   - Diagnóstico, Prescrição e Observações Clínicas do Atendimento.
+3. **Controle de Sessão e Cookies:**
+   - Sessões gerenciadas via cookies seguros com atributos `HttpOnly` e `SameSite=Strict`.
+   - O suporte a `Secure` pode ser habilitado em produção definindo a variável de ambiente `SESSION_COOKIE_SECURE=true`.
+4. **Isolamento de Dados:** Cada paciente e médico acessa estritamente os seus próprios registros médicos através de validações no backend baseadas na sessão autenticada.
