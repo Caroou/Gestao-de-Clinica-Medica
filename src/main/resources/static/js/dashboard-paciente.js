@@ -259,15 +259,23 @@ async function atualizarHorarios() {
   }
   if (token !== tokenCarregamentoHorario) return;
 
+  const horarioSelecionado = select.value;
   horariosExibidos = slots.map(slot => ({
     ...slot,
     data: slot.dataAgenda || slot.data,
     horario: String(slot.horario).slice(0, 5),
   })).sort((a, b) => `${a.data} ${a.horario}`.localeCompare(`${b.data} ${b.horario}`));
   div.classList.remove('hidden');
-  select.innerHTML = horariosExibidos.length
-    ? horariosExibidos.map(slot => `<option value="${escapar(slot.id)}">${escapar(dataLegivel(slot.data))} às ${escapar(slot.horario)}</option>`).join('')
-    : '<option value="">Este médico ainda não disponibilizou horários</option>';
+  if (!horariosExibidos.length) {
+    select.innerHTML = '<option value="">Este médico ainda não disponibilizou horários</option>';
+    return;
+  }
+
+  select.innerHTML = '<option value="">-- Selecione um horário --</option>' +
+    horariosExibidos.map(slot => `<option value="${escapar(slot.id)}">${escapar(dataLegivel(slot.data))} às ${escapar(slot.horario)}</option>`).join('');
+  if (horariosExibidos.some(slot => String(slot.id) === String(horarioSelecionado))) {
+    select.value = horarioSelecionado;
+  }
 }
 
 async function confirmarAgendamento() {

@@ -240,13 +240,22 @@ function renderHorarios() {
     data: item.dataAgenda || item.data,
     horario: String(item.horario).slice(0, 5),
   })).sort((a, b) => `${a.data} ${a.horario}`.localeCompare(`${b.data} ${b.horario}`));
-  el.innerHTML = slots.length ? slots.map(slot => `
-    <div class="consulta-card">
-      <div class="info"><h4>${escapar(new Intl.DateTimeFormat('pt-BR').format(new Date(`${slot.data}T12:00:00`)))} às ${escapar(slot.horario)}</h4>
-      <p>${slot.disponivel ? 'Disponível para agendamento' : 'Reservado por paciente'}</p></div>
-      <span class="badge ${slot.disponivel ? 'badge-green' : 'badge-slate'}">${slot.disponivel ? 'Disponível' : 'Reservado'}</span>
-      ${slot.disponivel ? `<button class="btn btn-danger btn-sm" onclick="removerHorario('${escapar(slot.id)}')">Remover horário</button>` : ''}
-    </div>`).join('') : '<p style="color:#64748b;padding:1rem">Nenhum horário disponibilizado ainda.</p>';
+  el.innerHTML = slots.length ? slots.map(slot => {
+    const vinculadoAoHistorico = consultasMedico.some(consulta =>
+      String(consulta.agendaId ?? consulta.slotId) === String(slot.id));
+    const acao = slot.disponivel
+      ? (vinculadoAoHistorico
+        ? '<small style="color:#64748b">Mantido no histórico</small>'
+        : `<button class="btn btn-danger btn-sm" onclick="removerHorario('${escapar(slot.id)}')">Remover horário</button>`)
+      : '';
+    return `
+      <div class="consulta-card">
+        <div class="info"><h4>${escapar(new Intl.DateTimeFormat('pt-BR').format(new Date(`${slot.data}T12:00:00`)))} às ${escapar(slot.horario)}</h4>
+        <p>${slot.disponivel ? 'Disponível para agendamento' : 'Reservado por paciente'}</p></div>
+        <span class="badge ${slot.disponivel ? 'badge-green' : 'badge-slate'}">${slot.disponivel ? 'Disponível' : 'Reservado'}</span>
+        ${acao}
+      </div>`;
+  }).join('') : '<p style="color:#64748b;padding:1rem">Nenhum horário disponibilizado ainda.</p>';
 }
 
 async function removerHorario(id) {

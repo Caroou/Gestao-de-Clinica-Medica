@@ -5,6 +5,7 @@ import com.clinicamedica.main.dto.AgendaRetornoDTO;
 import com.clinicamedica.main.model.Agenda;
 import com.clinicamedica.main.model.Medico;
 import com.clinicamedica.main.repository.AgendaRepository;
+import com.clinicamedica.main.repository.ConsultaRepository;
 import com.clinicamedica.main.repository.MedicoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,14 +18,17 @@ public class AgendaService {
 
     private final AgendaRepository agendaRepository;
     private final MedicoRepository medicoRepository;
+    private final ConsultaRepository consultaRepository;
 
     public AgendaService(
             AgendaRepository agendaRepository,
-            MedicoRepository medicoRepository
+            MedicoRepository medicoRepository,
+            ConsultaRepository consultaRepository
     ) {
 
         this.agendaRepository = agendaRepository;
         this.medicoRepository = medicoRepository;
+        this.consultaRepository = consultaRepository;
     }
 
     @Transactional
@@ -94,6 +98,9 @@ public class AgendaService {
         }
         if (!agenda.isDisponivel()) {
             throw new IllegalArgumentException("Um horário reservado não pode ser removido.");
+        }
+        if (consultaRepository.existsByAgenda_Id(id)) {
+            throw new IllegalArgumentException("Este horário possui consulta no histórico e não pode ser removido.");
         }
         agendaRepository.delete(agenda);
     }

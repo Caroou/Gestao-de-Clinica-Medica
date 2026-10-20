@@ -194,7 +194,7 @@ O sistema conta com Controle de Acesso Baseado em Perfis (RBAC), gerenciado por 
 
 ### 👨‍⚕️ Médico
 - **Cadastro e Especialidades:** Cadastro público com CRM, telefone e vinculação a uma ou mais especialidades médicas cadastradas no sistema.
-- **Gerenciamento de Agenda:** Disponibiliza novos horários de atendimento futuros (Data e Hora). Pode remover horários livres que ainda não foram reservados.
+- **Gerenciamento de Agenda:** Disponibiliza novos horários futuros. Pode remover horários livres sem consulta vinculada; horários reservados ou associados a um registro no histórico são preservados.
 - **Atendimento e Prontuário:** Acessa as consultas marcadas do dia. Ao atender o paciente, preenche o prontuário (Diagnóstico obrigatório, Prescrição e Observações Clínicas), alterando o status da consulta para `REALIZADO`.
 - **Cancelamento e Falta:** Pode cancelar uma consulta com aviso prévio ou registrar `NÃO COMPARECEU` após o horário estipulado.
 - **Histórico Clínico:** Pesquisa e consulta o histórico dos atendimentos prestados pelo próprio médico.
@@ -265,7 +265,7 @@ Todas as requisições utilizam JSON no corpo e possuem o prefixo `/api`. As rot
 | `POST` | `/api/agendas` | MEDICO | Cadastra horário livre na agenda do médico logado |
 | `GET` | `/api/agendas/minhas` | MEDICO | Lista os horários da agenda do médico |
 | `GET` | `/api/agendas/disponiveis` | Autenticado | Lista horários futuros livres (filtro opcional `?medicoId=`) |
-| `DELETE`| `/api/agendas/{id}` | MEDICO | Remove horário livre da própria agenda |
+| `DELETE`| `/api/agendas/{id}` | MEDICO | Remove horário livre sem consulta vinculada da própria agenda |
 
 ### 📋 Consultas
 | Método | Rota | Acesso | Descrição |

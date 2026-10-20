@@ -33,4 +33,6 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Integer> {
     List<Consulta> findByAgenda_DataAgenda(LocalDate data);
 
     boolean existsByEspecialidade_Id(Integer especialidadeId);
+
+    boolean existsByAgenda_Id(Integer agendaId);
 }
