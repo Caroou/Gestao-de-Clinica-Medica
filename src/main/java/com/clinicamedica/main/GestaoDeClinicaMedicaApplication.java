@@ -17,8 +17,6 @@ public class GestaoDeClinicaMedicaApplication {
 
 		SpringApplication application = new SpringApplication(GestaoDeClinicaMedicaApplication.class);
 		application.setWebApplicationType(WebApplicationType.NONE);
-
-		System.out.println("Sistema de Gestão funcionando em localhost:8080");
 		
 		try (ConfigurableApplicationContext ignored = application.run(args)) {
 			// O comando termina assim que concluir o provisionamento, sem iniciar o servidor web.
